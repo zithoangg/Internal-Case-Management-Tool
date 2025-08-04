@@ -1,0 +1,233 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html>
+<head>
+    <title>Internal Case Management Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <h1>Internal Case Management Tool</h1>
+
+    <div>
+        <h2>Title Generator</h2>
+        <label for="nextContactDate">Next contact Date:</label>
+        <input type="date" id="nextContactDate">
+
+        <label for="serviceLevel">Service Level:</label>
+        <select id="serviceLevel">
+            <option value="BC">BC</option>
+            <option value="Unified">Unified</option>
+        </select>
+
+        <label for="pcy">PCY:</label>
+        <select id="pcy">
+            <option value="AppService_Config">AppService_Config</option>
+            <option value="AppService_Dev">AppService_Dev</option>
+            <option value="AppService_Perf">AppService_Perf</option>
+            <option value="Developer_Developer">Developer_Developer</option>
+            <option value="Developer_Storage">Developer_Storage</option>
+            <option value="Developer_ServiceBus">Developer_ServiceBus</option>
+            <option value="WebApps">WebApps</option>
+            <option value="Browsers">Browsers</option>
+            <option value="DevOps">DevOps</option>
+        </select>
+
+        <label for="nextActionTitle">Next action:</label>
+        <input type="text" id="nextActionTitle">
+
+        <label for="icmLinked">ICM linked (optional):</label>
+        <input type="text" id="icmLinked">
+
+        <button id="generateTitle">Generate Title</button>
+        <button id="copyTitle">Copy Title</button>
+        <textarea id="titleOutput" style="background-color: #c9c9c9; resize: vertical; height: 200px; margin-top: 10px;"></textarea>
+    </div>
+
+    <div>
+        <h2>Case Note Generator</h2>
+        <label for="issueDescription">Issue description:</label>
+        <textarea id="issueDescription"></textarea>
+
+        <label for="icmNeeded">IcM Needed:</label>
+        <input type="text" id="icmNeeded">
+
+        <label for="troubleshootingDone">Troubleshooting Done:</label>
+        <textarea id="troubleshootingDone"></textarea>
+
+        <label for="communicationTimeline">Communication/Timeline:</label>
+        <textarea id="communicationTimeline"></textarea>
+
+        <label for="nextContactCase">Next contact:</label>
+        <input type="text" id="nextContactCase">
+
+        <label for="nextActionCase">Next action:</label>
+        <input type="text" id="nextActionCase">
+
+        <button id="generateCaseNote">Generate Case Note</button>
+        <button id="copyCaseNote">Copy Case Note</button>
+        <textarea id="caseNoteOutput" style="background-color: #c9c9c9; resize: vertical; height: 200px; margin-top: 10px;"></textarea>
+    </div>
+
+    <div>
+        <h2>Risk Note</h2>
+        <table>
+            <tr>
+                <th>No.</th>
+                <th>Risk</th>
+                <th>Description</th>
+                <th>Y/N</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>SLA Missed</td>
+                <td>IR Missed within queue tie / IR missed in other queue /tooling issue….</td>
+                <td>
+                    <input type="radio" name="risk1" value="Y"> Y
+                    <input type="radio" name="risk1" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Hot Zone</td>
+                <td>Country with extremely high standard for CS (India, Australia, Japan, etc.)</td>
+                <td>
+                    <input type="radio" name="risk2" value="Y"> Y
+                    <input type="radio" name="risk2" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Response delay/Customer pushed/CX escalated on ICM</td>
+                <td>Customer asked updates and pushing for live meeting or posting any concerns that no updates</td>
+                <td>
+                    <input type="radio" name="risk3" value="Y"> Y
+                    <input type="radio" name="risk3" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Product limit/bug/ By Design</td>
+                <td>The product doesn’t satisfy customer environment or portal display issue</td>
+                <td>
+                    <input type="radio" name="risk4" value="Y"> Y
+                    <input type="radio" name="risk4" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>3rd party issue/unsupported scenario</td>
+                <td>3rd products, or out of Azure supporting scope</td>
+                <td>
+                    <input type="radio" name="risk5" value="Y"> Y
+                    <input type="radio" name="risk5" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>SIE/Server outage/Upgrade</td>
+                <td>Service outage / Service Mandatory Upgrade -> Impact Cx</td>
+                <td>
+                    <input type="radio" name="risk6" value="Y"> Y
+                    <input type="radio" name="risk6" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>Collaboration issue</td>
+                <td>Collaboration task owner delays or not responding or no assignment.</td>
+                <td>
+                    <input type="radio" name="risk7" value="Y"> Y
+                    <input type="radio" name="risk7" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>AVA/ICM Issue</td>
+                <td>Long waiting time / approval in these group. Or Risky Advice</td>
+                <td>
+                    <input type="radio" name="risk8" value="Y"> Y
+                    <input type="radio" name="risk8" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>Customer resolved/Issue resolved itself</td>
+                <td>The issue is resolved by itself or the customer</td>
+                <td>
+                    <input type="radio" name="risk9" value="Y"> Y
+                    <input type="radio" name="risk9" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>Customer disconnected/unresponsive</td>
+                <td>The customer is unresponsive before we confirm the issue is resolved, or the customer doesn't want to continue working on the case</td>
+                <td>
+                    <input type="radio" name="risk10" value="Y"> Y
+                    <input type="radio" name="risk10" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>Demanding customer</td>
+                <td>The customer keeps asking questions and doesn't agree to open new case, or the customer is not quite satisfied with the solution or answers you provide</td>
+                <td>
+                    <input type="radio" name="risk11" value="Y"> Y
+                    <input type="radio" name="risk11" value="N"> N
+                </td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>Challenging history</td>
+                <td>The customer usually gives non-5 survey even though the issue is solved by our engineers, or the customer requires you to escalate his ticket during the case handling</td>
+                <td>
+                    <input type="radio" name="risk12" value="Y"> Y
+                    <input type="radio" name="risk12" value="N"> N
+                </td>
+            </tr>
+        </table>
+        <button id="generateRiskNote">Generate Risk Note</button>
+        <button id="copyRiskNote">Copy Risk Note</button>
+        <table id="riskNoteOutput" style="background-color: #c9c9c9; resize: vertical; height: 200px; margin-top: 10px;"></table>
+    </div>
+</body>
+</html>
