@@ -1,6 +1,6 @@
 //hi
 const risks = [
-    { name: "SLA Missed", description: "IR Missed within queue tie / IR missed in other queue / tooling issue …" },
+    { name: "SLA Missed", description: "IR Missed within queue tie / IR missed in other queue / tooling issue, etc." },
     { name: "Hot Zone", description: "Country with extremely high standard for CS (India, Australia, Japan, etc.)" },
     { name: "Response delay/Customer pushed/CX escalated on ICM", description: "Customer asked updates and pushing for live meeting or posting any concerns that no updates" },
     { name: "Product limit/bug/ By Design", description: "The product doesn’t satisfy customer environment or portal display issue" },
