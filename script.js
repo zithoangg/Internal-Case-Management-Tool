@@ -73,12 +73,12 @@ function generateCaseNote() {
     const nextAction = document.getElementById('nextActionCase').value;
 
     // Use newlines for plain text
-    let note = `Issue Description: ${issueDescription}\n\n`;
-    note += `ICM Needed: ${icmNeeded}\n\n`;
-    note += `Troubleshooting Done: ${troubleshootingDone}\n\n`;
-    note += `Communication/Timeline: ${communicationTimeline}\n\n`;
-    note += `Next Contact: ${nextContact}\n\n`;
-    note += `Next Action: ${nextAction}\n`;
+    let note = `Issue Description: \n${issueDescription}\n\n`;
+    note += `ICM Needed: \n${icmNeeded}\n\n`;
+    note += `Troubleshooting Done: \n${troubleshootingDone}\n\n`;
+    note += `Communication/Timeline: \n${communicationTimeline}\n\n`;
+    note += `Next Contact: \n${nextContact}\n\n`;
+    note += `Next Action: \n${nextAction}\n`;
 
     return note;
 }
@@ -135,7 +135,13 @@ document.getElementById('generateCaseNote').addEventListener('click', () => {
 
 document.getElementById('copyCaseNote').addEventListener('click', () => {
     const caseNote = generateCaseNote();
-    copyToClipboard(caseNote, false); // Copy as plain text
+    document.getElementById('caseNoteOutput').value = caseNote; //Just edited.
+
+    navigator.clipboard.writeText(caseNote).then(() => {
+        alert('Copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
 });
 
 document.getElementById('generateRiskNote').addEventListener('click', () => {
