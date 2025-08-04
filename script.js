@@ -1,18 +1,54 @@
-//hi
 const risks = [
-    { name: "SLA Missed", description: "IR Missed within queue tie / IR missed in other queue / tooling issue, etc." },
-    { name: "Hot Zone", description: "Country with extremely high standard for CS (India, Australia, Japan, etc.)" },
-    { name: "Response delay/Customer pushed/CX escalated on ICM", description: "Customer asked updates and pushing for live meeting or posting any concerns that no updates" },
-    { name: "Product limit/bug/ By Design", description: "The product doesn’t satisfy customer environment or portal display issue" },
-    { name: "3rd party issue/unsupported scenario", description: "3rd products, or out of Azure supporting scope" },
-    { name: "SIE/Server outage/Upgrade", description: "Service outage / Service Mandatory Upgrade -> Impact Cx" },
-    { name: "Collaboration issue", description: "Collaboration task owner delays or not responding or no assignment." },
-    { name: "AVA/ICM Issue", description: "Long waiting time / approval in these group. Or Risky Advice" },
-    { name: "Customer resolved/Issue resolved itself", description: "The issue is resolved by itself or the customer" },
-    { name: "Customer disconnected/unresponsive", description: "The customer is unresponsive before we confirm the issue is resolved, or the customer doesn't want to continue working on the case" },
-    { name: "Demanding customer", description: "The customer keeps asking questions and doesn't agree to open new case, or the customer is not quite satisfied with the solution or answers you provide" },
-    { name: "Challenging history", description: "The customer usually gives non-5 survey even though the issue is solved by our engineers, or the customer requires you to escalate his ticket during the case handling" }
+    {
+        name: "SLA Missed",
+        description: "IR Missed within queue tie / IR missed in other queue /tooling issue…."
+    },
+    {
+        name: "Hot Zone",
+        description: "Country with extremely high standard for CS (India, Australia, Japan, etc.)"
+    },
+    {
+        name: "Response delay/Customer pushed/CX escalated on ICM",
+        description: "Customer asked updates and pushing for live meeting or posting any concerns that no updates"
+    },
+    {
+        name: "Product limit/bug/ By Design",
+        description: "The product doesn’t satisfy customer environment or portal display issue"
+    },
+    {
+        name: "3rd party issue/unsupported scenario",
+        description: "3rd products, or out of Azure supporting scope"
+    },
+    {
+        name: "SIE/Server outage/Upgrade",
+        description: "Service outage / Service Mandatory Upgrade -> Impact Cx"
+    },
+    {
+        name: "Collaboration issue",
+        description: "Collaboration task owner delays or not responding or no assignment."
+    },
+    {
+        name: "AVA/ICM Issue",
+        description: "Long waiting time / approval in these group. Or Risky Advice"
+    },
+    {
+        name: "Customer resolved/Issue resolved itself",
+        description: "The issue is resolved by itself or the customer"
+    },
+    {
+        name: "Customer disconnected/unresponsive",
+        description: "The customer is unresponsive before we confirm the issue is resolved, or the customer doesn't want to continue working on the case"
+    },
+    {
+        name: "Demanding customer",
+        description: "The customer keeps asking questions and doesn't agree to open new case, or the customer is not quite satisfied with the solution or answers you provide"
+    },
+    {
+        name: "Challenging history",
+        description: "The customer usually gives non-5 survey even though the issue is solved by our engineers, or the customer requires you to escalate his ticket during the case handling"
+    }
 ];
+
 
 function generateTitle() {
     const nextContactDate = document.getElementById('nextContactDate').value;
