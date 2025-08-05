@@ -96,25 +96,34 @@ function generateRiskNote() {
 }
 
 function copyToClipboard(content, isHTML = false) {
-    const tempDiv = document.createElement('div');
-
     if (isHTML) {
+        // If HTML, create a temporary element to hold the HTML content
+        const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content; // Use HTML for the table
+        document.body.appendChild(tempDiv); // Append the div to the body
+
+        // Use the Clipboard API to write HTML
+        navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': new Blob([tempDiv.innerHTML], { type: 'text/html' }),
+                'text/plain': new Blob([tempDiv.textContent], { type: 'text/plain' }) // Fallback for plain text
+            })
+        ]).then(() => {
+            alert('Case Management Tool says: "' + tempDiv.textContent + '" copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        }).finally(() => {
+            document.body.removeChild(tempDiv); // Clean up
+        });
     } else {
-        tempDiv.textContent = content; // Use textContent for plain text
+        // For plain text using Clipboard API
+        navigator.clipboard.writeText(content).then(() => {
+            alert('Case Management Tool says: "' + content + '" copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
     }
-
-    document.body.appendChild(tempDiv); // Append the div to the body
-
-    const range = document.createRange();
-    range.selectNodeContents(tempDiv); // Select the content of the div
-    const selection = window.getSelection();
-    selection.removeAllRanges(); // Clear existing selections
-    selection.addRange(range); // Add the new range
-
-    document.execCommand('copy'); // Copy the selected content
-    document.body.removeChild(tempDiv); // Remove the temporary div
-    alert('Copied to clipboard!');
+}
 }
 
 // Event listeners
