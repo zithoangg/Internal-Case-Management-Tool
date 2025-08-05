@@ -95,6 +95,18 @@ function generateRiskNote() {
     return tableHTML; // Return HTML string for copying
 }
 
+function showCustomAlert(message) {
+    const alertDiv = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+    alertMessage.textContent = message;
+    alertDiv.style.display = 'block';
+}
+
+function closeCustomAlert() {
+    const alertDiv = document.getElementById('customAlert');
+    alertDiv.style.display = 'none';
+}
+
 function copyToClipboard(content, isHTML = false) {
     if (isHTML) {
         // If HTML, create a temporary element to hold the HTML content
@@ -109,7 +121,7 @@ function copyToClipboard(content, isHTML = false) {
                 'text/plain': new Blob([tempDiv.textContent], { type: 'text/plain' }) // Fallback for plain text
             })
         ]).then(() => {
-            alert('Case Management Tool says: "' + tempDiv.textContent + '" copied to clipboard!');
+            alert('Copied to clipboard!');
         }).catch(err => {
             console.error('Failed to copy: ', err);
         }).finally(() => {
@@ -118,13 +130,13 @@ function copyToClipboard(content, isHTML = false) {
     } else {
         // For plain text using Clipboard API
         navigator.clipboard.writeText(content).then(() => {
-            alert('Case Management Tool says: "' + content + '" copied to clipboard!');
+            alert('Copied to clipboard!');
         }).catch(err => {
             console.error('Failed to copy: ', err);
         });
     }
 }
-}
+
 
 // Event listeners
 document.getElementById('generateTitle').addEventListener('click', () => {
