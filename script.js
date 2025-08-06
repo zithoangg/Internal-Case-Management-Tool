@@ -95,18 +95,6 @@ function generateRiskNote() {
     return tableHTML; // Return HTML string for copying
 }
 
-function showCustomAlert(message) {
-    const alertDiv = document.getElementById('customAlert');
-    const alertMessage = document.getElementById('alertMessage');
-    alertMessage.textContent = message;
-    alertDiv.style.display = 'block';
-}
-
-function closeCustomAlert() {
-    const alertDiv = document.getElementById('customAlert');
-    alertDiv.style.display = 'none';
-}
-
 function copyToClipboard(content, isHTML = false) {
     if (isHTML) {
         // If HTML, create a temporary element to hold the HTML content
