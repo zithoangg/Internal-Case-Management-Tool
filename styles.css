@@ -133,6 +133,12 @@ button.secondary {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
 }
 
+/* Ensure the generated content area shows a clear vertical gap even when empty */
+.case-content {
+    min-height:20px; /* creates one visible empty line when there's no content */
+    line-height:1.4;
+}
+
 /* slightly larger SOAP output */
 .soap-output { min-height: 220px; }
 
