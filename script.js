@@ -42,13 +42,46 @@ function generateCaseNote() {
     const nextContact = (el('nextContactCase')?.value || '').trim();
     const nextAction = (el('nextActionCase')?.value || '').trim();
 
-    let note = `Issue Description:\n${issueDescription}\n\n`;
-    note += `ICM Needed:\n${icmNeeded}\n\n`;
-    note += `Troubleshooting Done:\n${troubleshootingDone}\n\n`;
-    note += `Communication / Timeline:\n${communicationTimeline}\n\n`;
-    note += `Next Contact:\n${nextContact}\n\n`;
-    note += `Next Action:\n${nextAction}\n`;
-    return note;
+    // Plain text version (for fallback)
+    let plain = `Issue Description:\n${issueDescription}\n\n`;
+    plain += `ICM Needed:\n${icmNeeded}\n\n`;
+    plain += `Troubleshooting Done:\n${troubleshootingDone}\n\n`;
+    plain += `Communication / Timeline:\n${communicationTimeline}\n\n`;
+    plain += `Next Contact:\n${nextContact}\n\n`;
+    plain += `Next Action:\n${nextAction}\n`;
+
+    // HTML version: headlines are bold + underlined.
+    // Use a spacer div for a visible vertical gap. Do NOT insert "&nbsp;" — leave content empty when there is no user text.
+    const h = (text) => `<div><b><u>${text}</u></b></div>`;
+    const spacer = `<div style="height:10px;"></div>`;
+    const contentHtml = (v) => v ? escapeHtml(v) : ''; // empty when no user content
+
+    let html = '';
+    html += h('Issue Description:') + spacer + `<div class="case-content">${contentHtml(issueDescription)}</div>`;
+    html += `<br>`;
+    html += h('ICM Needed:') + spacer + `<div class="case-content">${contentHtml(icmNeeded)}</div>`;
+    html += `<br>`;
+    html += h('Troubleshooting Done:') + spacer + `<div class="case-content">${contentHtml(troubleshootingDone)}</div>`;
+    html += `<br>`;
+    html += h('Communication / Timeline:') + spacer + `<div class="case-content">${contentHtml(communicationTimeline)}</div>`;
+    html += `<br>`;
+    html += h('Next Contact:') + spacer + `<div class="case-content">${contentHtml(nextContact)}</div>`;
+    html += `<br>`;
+    html += h('Next Action:') + spacer + `<div class="case-content">${contentHtml(nextAction)}</div>`;
+
+    return { html, plain };
+}
+
+// small helper to avoid injecting raw HTML from inputs
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;')
+        .replaceAll('\n', '<br>');
 }
 
 function generateRiskNote() {
@@ -142,10 +175,14 @@ document.addEventListener('DOMContentLoaded', () => {
     el('generateTitle')?.addEventListener('click', () => el('titleOutput').value = generateTitle());
     el('copyTitle')?.addEventListener('click', () => copyToClipboard(el('titleOutput').value || generateTitle(), { asHTML:false }));
 
-    el('generateCaseNote')?.addEventListener('click', () => el('caseNoteOutput').value = generateCaseNote());
+    el('generateCaseNote')?.addEventListener('click', () => {
+        const { html } = generateCaseNote();
+        const out = el('caseNoteOutput');
+        if (out) out.innerHTML = html;
+    });
     el('copyCaseNote')?.addEventListener('click', () => {
-        const text = el('caseNoteOutput').value || generateCaseNote();
-        copyToClipboard(text, { asHTML:false });
+        const { html, plain } = generateCaseNote();
+        copyToClipboard(html, { asHTML:true, fallbackPlain: plain });
     });
 
     el('generateRiskNote')?.addEventListener('click', () => generateRiskNote());
