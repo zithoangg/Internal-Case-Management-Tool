@@ -4,8 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Internal Case Management</title>
+
+<!-- Bootstrap 4 (compatible with SB Admin 2) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<!-- Optional SB Admin 2 CSS (keeps look & utilities) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/startbootstrap/startbootstrap-sb-admin-2@4.1.4/dist/css/sb-admin-2.min.css">
+
+<!-- Date / Time picker CSS (Bootstrap-friendly) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css">
+
 <link rel="stylesheet" href="styles.css">
-<script src="script.js" defer></script>
 </head>
 <body>
     <header class="header">
@@ -20,7 +30,8 @@
             <div class="form-grid">
                 <div>
                     <label for="nextContactDate">Next contact date</label>
-                    <input id="nextContactDate" type="date" />
+                    <!-- use a text input enhanced by flatpickr for consistent styling (date-only) -->
+                    <input id="nextContactDate" type="text" class="date-like" placeholder="Select date" />
                     <small class="muted">Select date</small>
                 </div>
                 <div>
@@ -58,7 +69,7 @@
                 <button id="generateTitle">Generate</button>
                 <button id="copyTitle" class="secondary">Copy</button>
             </div>
-            <textarea id="titleOutput" class="output" readonly placeholder="Generated title appears here"></textarea>
+            <textarea id="titleOutput" class="output" placeholder="Generated title appears here"></textarea>
         </section>
 
         <section class="card" id="case-card" aria-labelledby="case-heading">
@@ -91,7 +102,7 @@
                 <button id="generateCaseNote">Generate</button>
                 <button id="copyCaseNote" class="secondary">Copy</button>
             </div>
-            <div id="caseNoteOutput" class="output" aria-live="polite" placeholder="Generated case note appears here"></div>
+            <div id="caseNoteOutput" class="output" aria-live="polite" placeholder="Generated case note appears here" contenteditable="true"></div>
         </section>
 
         <section class="card" id="risk-card" aria-labelledby="risk-heading">
@@ -258,94 +269,110 @@
                 <button id="copyRiskNote" class="secondary">Copy</button>
             </div>
 
-            <div id="riskNoteOutput" class="risk-output" aria-live="polite"></div>
+            <div id="riskNoteOutput" class="risk-output" aria-live="polite" contenteditable="true"></div>
         </section>
 
         <section class="card" id="soap-card" aria-labelledby="soap-heading">
             <h2 id="soap-heading">SOAP Note</h2>
 
             <label for="soapSubject">S – Subjective / Issue description</label>
-            <textarea id="soapSubject" placeholder="Describe the issue in your own words (brief)"></textarea>
+            <textarea id="soapSubject" placeholder="SUMMARY — What is the customer experiencing?"></textarea>
 
+            <!-- Objective: free-text box for "What is the goal? What are we going to do?" -->
             <h3 class="subtle">O – Objective / Environment</h3>
+            <textarea id="soapObjective" placeholder="OBJECTIVE — What is the goal? What are we going to do?"></textarea>
             <div class="form-grid">
-                <div>
-                    <label for="soapSubscriptionId">Subscription ID</label>
-                    <input id="soapSubscriptionId" type="text" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-                </div>
-                <div>
-                    <label for="soapResourceId">Affected Resource ID</label>
-                    <input id="soapResourceId" type="text" placeholder="e.g., /subscriptions/.../resourceGroups/..." />
-                </div>
-                <div>
-                    <label for="soapTimeframe">Timeframe of observation</label>
-                    <input id="soapTimeframe" type="datetime-local" title="Pick date and time" />
-                    <small class="muted">Select date & hour:minute</small>
-                </div>
-                <div>
-                    <label for="soapIsFqr">Is FQR sent</label>
-                    <select id="soapIsFqr">
+                 <div>
+                     <label for="soapSubscriptionId">Subscription ID</label>
+                     <input id="soapSubscriptionId" type="text" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                 </div>
+                 <div>
+                     <label for="soapResourceId">Affected Resource ID</label>
+                     <input id="soapResourceId" type="text" placeholder="e.g., /subscriptions/.../resourceGroups/..." />
+                 </div>
+                 <div>
+                     <label for="soapTimeframe">Timeframe of observation</label>
+                     <!-- flatpickr will enhance this text input into a full date+time picker -->
+                     <input id="soapTimeframe" type="text" title="Pick date and time" />
+                     <small class="muted">Select date & hour:minute</small>
+                 </div>
+                 <div>
+                     <label for="soapIsFqr">Is FQR sent</label>
+                     <select id="soapIsFqr">
                         <option value="">--select--</option>
                         <option value="Y">Y</option>
                         <option value="N">N</option>
                         <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="soapPossibleFdr">Possible FDR</label>
-                    <select id="soapPossibleFdr">
+                     </select>
+                 </div>
+                 <div>
+                     <label for="soapPossibleFdr">Possible FDR</label>
+                     <select id="soapPossibleFdr">
                         <option value="">--select--</option>
                         <option value="Y">Y</option>
                         <option value="N">N</option>
                         <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="soapFdrExplain">If FDR not met / explanation</label>
-                    <input id="soapFdrExplain" type="text" placeholder="e.g., Customer unavailable to confirm FDR" />
-                </div>
-                <div>
-                    <label for="soapAscViewed">Has ASC been viewed/used</label>
-                    <select id="soapAscViewed">
+                     </select>
+                 </div>
+                 <div>
+                     <label for="soapFdrExplain">If FDR not met / explanation</label>
+                     <input id="soapFdrExplain" type="text" placeholder="e.g., Customer unavailable to confirm FDR" />
+                 </div>
+                 <div>
+                     <label for="soapAscViewed">Has ASC been viewed/used</label>
+                     <select id="soapAscViewed">
                         <option value="">--select--</option>
                         <option value="Y">Y</option>
                         <option value="N">N</option>
                         <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="soapAscInsights">Any insights generated in ASC</label>
-                    <select id="soapAscInsights">
+                     </select>
+                 </div>
+                 <div>
+                     <label for="soapAscInsights">Any insights generated in ASC</label>
+                     <select id="soapAscInsights">
                         <option value="">--select--</option>
                         <option value="Y">Y</option>
                         <option value="N">N</option>
                         <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label for="soapAscDetails">ASC insights (if any)</label>
-                    <textarea id="soapAscDetails" placeholder="Paste ASC insights or short summary"></textarea>
-                </div>
+                     </select>
+                 </div>
+                 <div style="grid-column: 1 / -1;">
+                     <label for="soapAscDetails">ASC insights (if any)</label>
+                     <textarea id="soapAscDetails" placeholder="Paste ASC insights or short summary"></textarea>
+                 </div>
             </div>
 
-            <h3 class="subtle">A – Assessment</h3>
-            <label for="soapAssessment">Summarize findings</label>
-            <textarea id="soapAssessment" placeholder="Summary of findings"></textarea>
+            <h3 class="subtle">A – Analysis</h3>
+            <label for="soapAssessment">Analysis / Findings</label>
+            <textarea id="soapAssessment" placeholder="ANALYSIS — What did we do? Verbose notes + env data + screenshots"></textarea>
 
             <h3 class="subtle">P – Plan</h3>
             <label for="soapPlan">Outline action plan</label>
-            <textarea id="soapPlan" placeholder="Action items, owners and ETA"></textarea>
+            <textarea id="soapPlan" placeholder="PLAN — Next customer action"></textarea>
 
             <div class="actions">
                 <button id="generateSOAPNote">Generate</button>
                 <button id="copySOAPNote" class="secondary">Copy</button>
             </div>
-            <textarea id="soapOutput" class="output soap-output" readonly placeholder="Generated SOAP note appears here"></textarea>
+            <textarea id="soapOutput" class="output soap-output" placeholder="Generated SOAP note appears here"></textarea>
         </section>
     </main>
 
     <footer class="footer">
         <small class="muted">Credit: Robert Van</small>
     </footer>
+
+    <!-- scripts: jQuery / Popper / Bootstrap (order matters) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+
+    <!-- moment + tempusdominus + bootstrap-datepicker -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- main app script (keeps your functions alive) -->
+    <script src="script.js" defer></script>
 </body>
 </html>
