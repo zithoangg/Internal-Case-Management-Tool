@@ -18,8 +18,8 @@ function el(id){ return document.getElementById(id); }
 
 function formatDateTimeLocal(dtValue) {
     if (!dtValue) return '';
-    // datetime-local value e.g. "2025-10-18T09:30" -> "2025-10-18 09:30"
-    return dtValue.replace('T', ' ');
+    // Accept either "2025-10-18T09:30" (native) or "2025-10-18 09:30" (flatpickr)
+    return dtValue.includes('T') ? dtValue.replace('T', ' ') : dtValue;
 }
 
 function generateTitle() {
@@ -172,6 +172,66 @@ function fallbackPlainCopy(text) {
 
 /* Wire up events */
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Bootstrap-friendly date & datetime pickers ---
+    // Next contact date: date-only (Bootstrap DatePicker)
+    if (window.jQuery && $('#nextContactDate').length) {
+        $('#nextContactDate').datepicker({
+            format: 'yyyy-mm-dd',    // machine-friendly (generateTitle expects this)
+            autoclose: true,
+            todayHighlight: true,
+            orientation: "bottom auto"
+        }).on('changeDate', function(e){
+            // keep the native input value in yyyy-mm-dd (done automatically), update any UI flags used elsewhere
+            // no-op placeholder to ensure compatibility with existing generateTitle()
+        });
+
+        // Timeframe of observation: datetime (Tempus Dominus)
+        // wrap input if not already wrapped by an input-group (tempusdominus works with the input)
+        if (window.moment && window.tempusDominus || window.tempusdominus || typeof $.fn.datetimepicker === 'function') {
+            try {
+                // Try tempusdominus (Bootstrap 4) initialization
+                $('#soapTimeframe').datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm',     // machine-friendly string used by generateSOAPNote -> formatDateTimeLocal
+                    icons: {
+                        time: 'fas fa-clock',
+                        date: 'fas fa-calendar',
+                        up: 'fas fa-chevron-up',
+                        down: 'fas fa-chevron-down',
+                        previous: 'fas fa-chevron-left',
+                        next: 'fas fa-chevron-right',
+                        today: 'far fa-calendar-check',
+                        clear: 'far fa-trash-alt',
+                        close: 'fas fa-times'
+                    },
+                    sideBySide: true,
+                    stepping: 5,
+                    showClose: true
+                });
+
+                // When user selects a date/time, ensure the input value is in the expected machine format
+                $('#soapTimeframe').on('change.datetimepicker', function(e){
+                    // e.date is a moment object in tempusdominus v5; format and set input value
+                    if (e && e.date && typeof e.date.format === 'function') {
+                        const formatted = e.date.format('YYYY-MM-DD HH:mm');
+                        // set both the visible input value and underlying value used by your code
+                        $(this).find('input').val(formatted);
+                        // if the input is the element itself:
+                        if ($(this).is('input')) $(this).val(formatted);
+                    }
+                });
+            } catch (err) {
+                // fallback: use simple bootstrap-datepicker (date-only) if datetime picker fails
+                $('#soapTimeframe').datepicker({
+                    format: 'yyyy-mm-dd',
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            }
+        }
+    }
+
+    // --- keep the rest of your wiring as-is ---
     el('generateTitle')?.addEventListener('click', () => el('titleOutput').value = generateTitle());
     el('copyTitle')?.addEventListener('click', () => copyToClipboard(el('titleOutput').value || generateTitle(), { asHTML:false }));
 
@@ -181,19 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (out) out.innerHTML = html;
     });
     el('copyCaseNote')?.addEventListener('click', () => {
-        const { html, plain } = generateCaseNote();
+        const out = el('caseNoteOutput');
+        if (!out) return;
+        const html = out.innerHTML;
+        const plain = stripHtml(html);
         copyToClipboard(html, { asHTML:true, fallbackPlain: plain });
     });
 
     el('generateRiskNote')?.addEventListener('click', () => generateRiskNote());
     el('copyRiskNote')?.addEventListener('click', () => {
-        const { html, plain } = generateRiskNote();
+        const out = el('riskNoteOutput');
+        if (!out) return;
+        const html = out.innerHTML;
+        const plain = stripHtml(html);
         copyToClipboard(html, { asHTML:true, fallbackPlain: plain });
     });
 
     el('generateSOAPNote')?.addEventListener('click', () => el('soapOutput').value = generateSOAPNote());
     el('copySOAPNote')?.addEventListener('click', () => {
-        const text = el('soapOutput').value || generateSOAPNote();
+        const out = el('soapOutput');
+        const text = (out && out.value) ? out.value : generateSOAPNote();
         copyToClipboard(text, { asHTML:false });
     });
 
