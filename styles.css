@@ -1,1617 +1,984 @@
-/* Improve variables: fluid typography, slightly stronger muted color for contrast */
+/* ══════════════════════════════════════════════════════════
+   Premium Design System — unified with Flatpickr theme
+   ══════════════════════════════════════════════════════════ */
 :root{
-    --bg:#f4f7fb;
-    --card:#ffffff;
-    --muted:#56606b;            /* slightly darker for readability */
-    --accent:#2b8cff;
-    --accent-2:#3bb3a3;
-    --danger:#e74c3c;
-    --text:#17202a;
-    --radius:12px;
-    --shadow: 0 8px 28px rgba(12,24,40,0.08);
-    --gap:22px;
+    --bg: #f0f4fa;
+    --card: #ffffff;
+    --muted: #56606b;
+    --accent: #2b8cff;
+    --accent-dark: #1a6fd6;
+    --accent-deeper: #155bbf;
+    --accent-2: #3bb3a3;
+    --danger: #e74c3c;
+    --text: #17202a;
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(12,24,40,0.10), 0 2px 8px rgba(12,24,40,0.04);
+    --shadow-lg: 0 20px 60px rgba(12,24,40,0.12), 0 4px 16px rgba(12,24,40,0.06);
+    --glass: rgba(255,255,255,0.65);
+    --glass-border: rgba(255,255,255,0.40);
+    --gap: 24px;
 
     /* fluid type helpers */
     --fs-base: clamp(15px, 1.2vw + 12px, 18px);
-    --fs-h1: clamp(20px, 2.4vw + 12px, 32px);
-    --fs-h2: clamp(16px, 1.6vw + 12px, 20px);
+    --fs-h1: clamp(22px, 2.4vw + 12px, 34px);
+    --fs-h2: clamp(16px, 1.6vw + 12px, 21px);
 
     font-synthesis: none;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; }
-html,body { height:100%; }
+html { height:100%; scroll-behavior: smooth; }
 body {
+    min-height:100%;
     margin:0;
-    background: linear-gradient(180deg, var(--bg), #eef3fb 60%);
+    background: linear-gradient(160deg, #e8eef8 0%, #f0f4fa 30%, #e4ecf7 70%, #dde6f3 100%);
+    background-attachment: fixed;
     font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     color:var(--text);
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
-    padding:28px;
+    padding: 0 20px 40px;
 }
 
-/* Header */
-.header{ max-width:1100px; margin:0 auto 18px; position:relative; }
-.header-inner { display:flex; align-items:center; justify-content:center; gap:12px; }
-.header h1 { margin:0; font-weight:800; color:var(--accent); letter-spacing:-0.5px; font-size:1.8rem; text-align:center; }
-.brand { position:absolute; right:28px; top:18px; color:var(--muted); }
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    border-radius: 10px;
+}
 
-/* Layout - single-column stack so every part sits below the previous */
+/* ══════════════════════════════════════════════════════════
+   Header — gradient hero bar matching Flatpickr header
+   ══════════════════════════════════════════════════════════ */
+.header {
+    max-width: 1100px;
+    margin: 0 auto 28px;
+    position: relative;
+    padding-top: 24px;
+}
+.header-inner {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark) 50%, var(--accent-deeper));
+    border-radius: var(--radius);
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    box-shadow: 0 12px 40px rgba(43,140,255,0.25), 0 4px 12px rgba(43,140,255,0.10);
+    position: relative;
+    overflow: hidden;
+}
+/* Subtle decorative circles */
+.header-inner::before {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+    top: -80px; right: -40px;
+    pointer-events: none;
+}
+.header-inner::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+    bottom: -50px; left: 30px;
+    pointer-events: none;
+}
+.header h1 {
+    margin: 0;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    font-size: var(--fs-h1);
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    position: relative;
+    z-index: 1;
+}
+.brand { position:absolute; right:28px; top:18px; color:rgba(255,255,255,0.6); z-index:1; }
+
+/* ══════════════════════════════════════════════════════════
+   Layout
+   ══════════════════════════════════════════════════════════ */
 .container {
-    max-width:1100px;
+    max-width: 1100px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr; /* single column - everything stacked vertically */
+    grid-template-columns: 1fr;
     gap: var(--gap);
-    align-items:start;
+    align-items: start;
     row-gap: 28px;
 }
 
-/* Ensure cards keep their previous visual styling */
+/* ══════════════════════════════════════════════════════════
+   Cards — glassmorphism with accent glow
+   ══════════════════════════════════════════════════════════ */
 .card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.98), var(--card));
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.88));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius);
-    padding: 24px;
+    padding: 28px 28px 24px;
     box-shadow: var(--shadow);
-    border: 1px solid rgba(30,40,60,0.04);
+    border: 1px solid var(--glass-border);
     margin-bottom: 0;
     box-sizing: border-box;
+    animation: cardEnter .5s cubic-bezier(.22,.9,.3,1) both;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .25s ease, transform .2s ease;
+}
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark), var(--accent-2));
+    border-radius: var(--radius) var(--radius) 0 0;
+    opacity: 0.8;
+}
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
-/* full-width overrides are no longer needed but harmless */
-#title-card { grid-column: 1 / -1; }
-#soap-card { grid-column: 1 / -1; }
+/* Stagger card entrance */
+#title-card { grid-column: 1 / -1; animation-delay: 0s; }
+#case-card  { animation-delay: .08s; }
+#risk-card  { animation-delay: .16s; }
+#soap-card  { grid-column: 1 / -1; animation-delay: .24s; }
 
-h2 { margin:0 0 14px; color:#0f3a57; font-size:1.15rem; }
-h3.subtle { margin:14px 0 8px; color:var(--muted); font-weight:600; font-size:.95rem; }
+/* ── Section headings ── */
+h2 {
+    margin: 0 0 18px;
+    font-size: var(--fs-h2);
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+h2::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 22px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    border-radius: 3px;
+    flex-shrink: 0;
+}
 
-/* Form grid inside cards */
+h3.subtle {
+    margin: 18px 0 10px;
+    color: var(--accent-dark);
+    font-weight: 700;
+    font-size: .95rem;
+    letter-spacing: 0.02em;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Form grid
+   ══════════════════════════════════════════════════════════ */
 .form-grid {
-    display:grid;
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap:14px;
-    margin-bottom:14px;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
-/* Inputs */
-label { display:block; font-weight:700; margin-bottom:8px; color:#123857; font-size:.92rem; }
+/* ══════════════════════════════════════════════════════════
+   Labels
+   ══════════════════════════════════════════════════════════ */
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #1a3a5c;
+    font-size: .88rem;
+    letter-spacing: 0.01em;
+    text-transform: none;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Inputs / Textareas / Selects — glass style
+   ══════════════════════════════════════════════════════════ */
 input[type="text"], input[type="date"], input[type="datetime-local"], select, textarea {
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(20,30,60,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9));
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s;
+    min-height: 46px;
 }
-input::placeholder, textarea::placeholder { color:#98a0aa; font-style:italic; opacity:0.9; }
-textarea { min-height:120px; resize:vertical; }
+input::placeholder, textarea::placeholder {
+    color: #a0a8b4;
+    font-style: normal;
+    font-weight: 400;
+    opacity: 0.85;
+}
+textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
 
-/* focus */
+/* Focus — accent glow matching Flatpickr day selection */
 input:focus, textarea:focus, select:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
     border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(43,140,255,0.12), 0 8px 24px rgba(43,140,255,0.08);
     transform: translateY(-1px);
 }
+/* Plain inputs/textareas get solid white on focus (selects & date-like handle their own) */
+input:not(.date-like):focus, textarea:focus {
+    background: #fff;
+}
 
-/* Buttons */
-.actions { margin-top:14px; display:flex; gap:10px; align-items:center; }
+/* ══════════════════════════════════════════════════════════
+   Buttons — gradient pills with glow
+   ══════════════════════════════════════════════════════════ */
+.actions {
+    margin-top: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
 button {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:white;
-    padding:10px 14px;
-    border-radius:10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark) 50%, var(--accent-deeper));
+    color: white;
+    padding: 11px 22px;
+    border-radius: 12px;
     border: none;
-    cursor:pointer;
-    font-weight:800;
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14);
-    transition: transform .08s ease, box-shadow .08s ease, opacity .08s;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: .92rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 28px rgba(43,140,255,0.22), 0 2px 6px rgba(43,140,255,0.10);
+    transition: transform .15s ease, box-shadow .15s ease;
+    position: relative;
+    overflow: hidden;
 }
-button:hover { transform: translateY(-3px); }
-button:active { transform: translateY(0); }
+button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent 60%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 14px 40px rgba(43,140,255,0.30), 0 4px 10px rgba(43,140,255,0.12);
+}
+button:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow: 0 4px 16px rgba(43,140,255,0.18);
+}
 button.secondary {
-    background: linear-gradient(180deg,#f7f9ff,#eef4ff);
-    color:#123857;
-    box-shadow:none;
-    border:1px solid rgba(20,30,60,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(238,244,255,0.9));
+    backdrop-filter: blur(8px);
+    color: var(--accent-dark);
+    box-shadow: 0 4px 16px rgba(12,24,40,0.06);
+    border: 2px solid rgba(43,140,255,0.12);
+    font-weight: 700;
+}
+button.secondary::after { display: none; }
+button.secondary:hover {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, #fff, #f0f5ff);
+    box-shadow: 0 8px 24px rgba(43,140,255,0.12);
+    transform: translateY(-2px);
 }
 
-/* Output area */
+/* ══════════════════════════════════════════════════════════
+   Output areas — frosted glass
+   ══════════════════════════════════════════════════════════ */
 .output {
-    margin-top:12px;
-    background: linear-gradient(180deg,#fafbff,#f6f9ff);
-    border:1px solid rgba(20,30,60,0.04);
-    min-height:120px;
-    padding:12px;
-    border-radius:10px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    margin-top: 14px;
+    background: linear-gradient(180deg, rgba(248,250,255,0.9), rgba(240,244,255,0.85));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(43,140,255,0.08);
+    min-height: 120px;
+    padding: 16px;
+    border-radius: 14px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .94rem;
+    line-height: 1.6;
+    transition: border-color .2s;
+}
+.output:focus-within, .output:focus {
+    border-color: rgba(43,140,255,0.18);
 }
 
-/* Ensure the generated content area shows a clear vertical gap even when empty */
 .case-content {
-    min-height:20px; /* creates one visible empty line when there's no content */
-    line-height:1.4;
+    min-height: 20px;
+    line-height: 1.5;
 }
 
-/* slightly larger SOAP output */
 .soap-output { min-height: 220px; }
 
-/* Risk table */
+/* ══════════════════════════════════════════════════════════
+   Risk table — premium cards-in-a-list
+   ══════════════════════════════════════════════════════════ */
 .risk-table {
-    margin-top:12px; 
-    display:block;            /* block so each .risk-row is full width */
-    width:100%;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
 }
 
+/* Unified grid columns for BOTH header and data rows */
 .risk-row,
 .risk-row.header {
     display: grid;
-    grid-template-columns: 44px 240px 1fr 120px; /* match .risk-row */
+    grid-template-columns: 44px 220px 1fr 120px;
     gap: 12px;
-    align-items: center;      /* vertically center header text */
-    padding: 14px;            /* same padding as rows */
+    align-items: center;
+    padding: 14px 16px;
     box-sizing: border-box;
-    background: transparent;  /* keep visual style */
-    border: none;
     width: 100%;
+    border-radius: 12px;
 }
 
-/* make sure header .col padding/align matches data rows */
-.risk-row.header .col { padding: 0 6px; }
+.risk-row:not(.header) {
+    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(248,250,255,0.75));
+    border: 1px solid rgba(20,30,60,0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.risk-row:not(.header):nth-child(even) {
+    background: linear-gradient(180deg, rgba(243,247,255,0.85), rgba(238,244,255,0.75));
+}
+
+.risk-row .col,
+.risk-row.header .col { padding: 0 6px; box-sizing: border-box; }
 .risk-row.header .col-no { text-align: center; }
 .risk-row.header .col-yn { display:flex; justify-content:center; align-items:center; }
 
-/* Keep existing row styles intact */
-.risk-row {
-    display: grid;
-    grid-template-columns: 44px 220px 1fr 110px; /* explicit tracks so header and rows align */
-    gap: 12px;
-    align-items: center;
-    padding: 14px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-/* keep header visual subtle but aligned */
 .risk-row.header {
     background: transparent;
     border: none;
     font-weight: 700;
     color: var(--muted);
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 8px;
 }
 
-/* Make sure column padding / alignment match for header and rows */
-.risk-row .col,
-.risk-row.header .col { padding: 0 6px; box-sizing: border-box; }
-.risk-row.header .col-no { text-align: center; }
-.col-no { color:var(--muted); font-weight:700; text-align:center; }
-.col-risk { font-weight:700; color:#123857; }
-.col-desc { color:#4b5563; font-size:.95rem; line-height:1.4; }
+.col-no {
+    color: var(--accent);
+    font-weight: 800;
+    text-align: center;
+    font-size: .9rem;
+}
+.col-risk { font-weight: 700; color: #1a3a5c; font-size: .92rem; }
+.col-desc { color: #5b6678; font-size: .9rem; line-height: 1.45; }
 
-/* Y/N column: keep controls inside the card, no offsets */
-.col-yn { 
-    display:flex; 
-    gap:12px; 
-    align-items:center; 
-    justify-content:flex-end; 
-    padding-right:6px; 
-    box-sizing:border-box; 
+.col-yn {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+    box-sizing: border-box;
 }
 
-/* Circle toggles */
+/* ── Circle toggles — matching Flatpickr day cells ── */
 .col-yn input[type="radio"] { display:none; }
 .circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none; /* no translate offsets */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(30,40,60,0.10);
+    background: linear-gradient(180deg, #fff, #f4f7fc);
+    color: #4b5563;
+    font-weight: 600;
+    font-size: .85rem;
+    box-shadow: 0 4px 12px rgba(20,30,60,0.04);
+    margin: 0;
+    transform: none;
     cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s;
+    transform-origin: center center;
     will-change: transform, box-shadow, background;
 }
 
-/* Hover / active states to mimic the Generate/Copy button "pop" */
 .col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 8px 24px rgba(43,140,255,0.16);
+    border-color: rgba(43,140,255,0.25);
 }
 .col-yn label.circle:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.96);
 }
 
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
+.col-yn label.circle.yes { border-color: rgba(59,179,163,0.20); }
+.col-yn label.circle.no  { border-color: rgba(200,210,220,0.10); }
 
 .col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 6px 20px rgba(43,140,255,0.28), 0 0 0 4px rgba(43,140,255,0.10);
+    transform: translateY(-2px) scale(1.05);
+    font-weight: 700;
 }
 
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
+/* ── Muted helper text ── */
+.muted { color: var(--muted); font-size: .88rem; margin: 6px 0 12px; }
 
-/* Risk output */
+/* ── Risk output — frosted glass ── */
 .risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
+    margin-top: 14px;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(248,250,255,0.9), rgba(240,244,255,0.85));
+    backdrop-filter: blur(12px);
+    border-radius: 14px;
+    border: 2px solid rgba(43,140,255,0.08);
+    min-height: 80px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .94rem;
+    color: #1a3a5c;
+    transition: border-color .2s;
+}
+.risk-output:focus-within, .risk-output:focus {
+    border-color: rgba(43,140,255,0.18);
 }
 
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
+/* ══════════════════════════════════════════════════════════
+   Footer
+   ══════════════════════════════════════════════════════════ */
+.footer {
+    max-width: 1100px;
+    margin: 32px auto 0;
+    color: var(--muted);
+    text-align: center;
+    font-size: .85rem;
+    opacity: 0.7;
+}
 
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+/* ══════════════════════════════════════════════════════════
+   Animations
+   ══════════════════════════════════════════════════════════ */
+@keyframes cardEnter {
+    from { transform: translateY(16px) scale(0.98); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 @keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
 .risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
+    will-change: transform, box-shadow, opacity;
+    transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp .4s cubic-bezier(.22,.9,.3,1) forwards;
+    animation-delay: .06s;
 }
 
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
+.risk-row.header {
+    opacity: 1;
+    transform: none;
+    animation: none;
 }
 
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
+.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .06s; }
+.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .09s; }
 .risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
+.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .15s; }
+.risk-table .risk-row:not(.header):nth-of-type(6)  { animation-delay: .18s; }
+.risk-table .risk-row:not(.header):nth-of-type(7)  { animation-delay: .21s; }
+.risk-table .risk-row:not(.header):nth-of-type(8)  { animation-delay: .24s; }
+.risk-table .risk-row:not(.header):nth-of-type(9)  { animation-delay: .27s; }
+.risk-table .risk-row:not(.header):nth-of-type(10) { animation-delay: .30s; }
+.risk-table .risk-row:not(.header):nth-of-type(11) { animation-delay: .33s; }
+.risk-table .risk-row:not(.header):nth-of-type(12) { animation-delay: .36s; }
+.risk-table .risk-row:not(.header):nth-of-type(13) { animation-delay: .39s; }
 
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
+.risk-row:not(.header):hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 12px 32px rgba(12,24,40,0.08);
+    border-color: rgba(43,140,255,0.12);
 }
 
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
+/* ══════════════════════════════════════════════════════════
+   Flatpickr — premium theme overrides
+   ══════════════════════════════════════════════════════════ */
+
+/* Container */
+.flatpickr-calendar {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(12,24,40,0.18), 0 4px 12px rgba(12,24,40,0.06) !important;
+    border: 1px solid rgba(20,30,60,0.05) !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    overflow: hidden;
+    animation: fpOpen .22s cubic-bezier(.22,.9,.3,1) both;
+    width: 320px !important;
+    background: #fff !important;
+    padding: 0 !important;
+}
+.flatpickr-calendar.hasTime { width: 320px !important; }
+.flatpickr-calendar.open { z-index: 99999 !important; }
+@keyframes fpOpen {
+    from { transform: translateY(6px) scale(.97); opacity:0; }
+    to   { transform: translateY(0) scale(1); opacity:1; }
 }
 
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
+/* ── Inner days container ── */
+.flatpickr-innerContainer {
+    padding: 4px 8px 8px !important;
+    background: #fff !important;
+}
+.flatpickr-rContainer { width: 100% !important; }
+.dayContainer {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 2px;
 }
 
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
+/* ── Month header bar ── */
+.flatpickr-months {
+    background: linear-gradient(135deg, var(--accent), #1a6fd6 50%, #155bbf) !important;
+    border-radius: 16px 16px 0 0;
+    padding: 8px 4px 6px !important;
+    height: 52px !important;
+    align-items: center;
+}
+.flatpickr-months .flatpickr-month {
+    color: #fff !important;
+    height: 40px !important;
+    background: transparent !important;
 }
 
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
+/* Prev / Next arrows — pill buttons */
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.15) !important;
+    fill: #fff !important;
+    transition: background .15s, transform .1s;
+    padding: 0 !important;
+    top: 9px !important;
+}
+.flatpickr-months .flatpickr-prev-month { left: 8px !important; }
+.flatpickr-months .flatpickr-next-month { right: 8px !important; }
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+    background: rgba(255,255,255,0.28) !important;
+    transform: scale(1.08);
+}
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+    width: 14px !important; height: 14px !important;
+    fill: #fff !important;
 }
 
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
+/* Month dropdown — sleek transparent select */
+.flatpickr-current-month {
+    padding-top: 4px !important;
+    font-size: 1.05rem !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background: rgba(255,255,255,0.15) !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 10px 6px !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: .95rem !important;
+    padding: 4px 28px 4px 10px !important;
+    cursor: pointer;
+    transition: background .12s;
+    height: auto !important;
+    line-height: 1.4 !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+    background: rgba(255,255,255,0.25) !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months option {
+    background: #fff !important;
+    color: #17202a !important;
+    font-weight: 600;
 }
 
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
+/* Year input — clean inline field */
+.flatpickr-current-month input.cur-year {
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: .95rem !important;
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    border-radius: 8px !important;
+    padding: 4px 6px !important;
+    width: 68px !important;
+    text-align: center;
+    cursor: pointer;
+    transition: background .12s;
+}
+.flatpickr-current-month input.cur-year:hover {
+    background: rgba(255,255,255,0.25) !important;
+}
+/* Hide the tiny year arrows (use scroll/type instead) */
+.flatpickr-current-month .numInputWrapper span {
+    display: none !important;
 }
 
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
+/* ── Weekday headers ── */
+span.flatpickr-weekday {
+    color: var(--accent) !important;
+    font-weight: 700;
+    font-size: .72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent !important;
+}
+.flatpickr-weekdays {
+    padding: 8px 0 2px !important;
+    background: transparent !important;
+    overflow: hidden !important;
+}
+.flatpickr-weekdaycontainer {
+    display: flex !important;
+}
+
+/* ── Day cells ── */
+.flatpickr-day {
+    border-radius: 10px !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    max-width: 40px !important;
+    font-weight: 500;
+    color: var(--text) !important;
+    border: 1px solid transparent !important;
+    transition: background .12s ease, color .12s ease, transform .08s ease, box-shadow .12s;
+}
+.flatpickr-day.inRange {
+    background: rgba(43,140,255,0.06) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+.flatpickr-day:hover {
+    background: rgba(43,140,255,0.10) !important;
+    border-color: transparent !important;
+    transform: scale(1.12);
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+    background: linear-gradient(135deg, var(--accent), #1a6fd6) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+    box-shadow: 0 6px 18px rgba(43,140,255,0.30);
+    transform: scale(1.08);
+    font-weight: 700;
+}
+.flatpickr-day.today:not(.selected) {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    font-weight: 700;
+    background: rgba(43,140,255,0.04) !important;
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+    color: #d0d5dd !important;
+    background: transparent !important;
+    transform: none;
+}
+.flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+    color: #c0c8d4 !important;
+}
+
+/* ── Time picker panel — drum-roller style ── */
+.flatpickr-time {
+    border-top: 2px solid rgba(43,140,255,0.12) !important;
+    background: linear-gradient(180deg, #f0f5ff, #e8f0fd) !important;
+    padding: 18px 24px !important;
+    height: auto !important;
+    max-height: none !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+/* Hour / Minute wrapper — tall drum with gradient fade edges */
+.flatpickr-time .numInputWrapper {
+    background: #fff !important;
+    border: 2px solid rgba(20,30,60,0.10) !important;
+    border-radius: 16px !important;
+    height: 80px !important;
+    width: 72px !important;
+    flex: none !important;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(12,24,40,0.06);
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+    cursor: ns-resize;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+/* Top/bottom fade — drum roller illusion */
+.flatpickr-time .numInputWrapper::before,
+.flatpickr-time .numInputWrapper::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 18px;
+    pointer-events: none;
+    z-index: 2;
+}
+.flatpickr-time .numInputWrapper::before {
+    top: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), transparent);
+    border-radius: 16px 16px 0 0;
+}
+.flatpickr-time .numInputWrapper::after {
+    bottom: 0;
+    background: linear-gradient(0deg, rgba(255,255,255,0.9), transparent);
+    border-radius: 0 0 16px 16px;
+}
+.flatpickr-time .numInputWrapper:hover,
+.flatpickr-time .numInputWrapper:focus-within {
+    border-color: var(--accent) !important;
+    box-shadow: 0 8px 28px rgba(43,140,255,0.18);
+    transform: translateY(-2px);
+}
+/* Active drag state */
+.flatpickr-time .numInputWrapper.dragging {
+    border-color: var(--accent-dark) !important;
+    box-shadow: 0 8px 32px rgba(43,140,255,0.28);
+    transform: scale(1.06);
+}
+
+/* The number display */
+.flatpickr-time input {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    height: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    text-align: center;
+    padding: 0 !important;
+    border-radius: 16px !important;
+    cursor: ns-resize;
+    transition: color .12s;
+    position: relative;
+    z-index: 1;
+}
+.flatpickr-time input:focus {
+    background: rgba(43,140,255,0.03) !important;
+    color: var(--accent-dark) !important;
+}
+
+/* HIDE default arrows completely — replaced by scroll/drag */
+.flatpickr-time .numInputWrapper span {
+    display: none !important;
+}
+
+/* Scroll hint label under each drum */
+.flatpickr-time .numInputWrapper .scroll-hint {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity .3s;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.03em;
+    z-index: 3;
+}
+.flatpickr-time .numInputWrapper:hover .scroll-hint {
+    opacity: 1;
+}
+
+/* Up/Down chevron indicators inside the drum — subtle, always visible */
+.flatpickr-time .numInputWrapper .drum-arrow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.25;
+    transition: opacity .2s, transform .15s;
+}
+.flatpickr-time .numInputWrapper .drum-arrow.up {
+    top: 6px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid var(--accent);
+}
+.flatpickr-time .numInputWrapper .drum-arrow.down {
+    bottom: 6px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--accent);
+}
+.flatpickr-time .numInputWrapper:hover .drum-arrow {
+    opacity: 0.6;
+}
+.flatpickr-time .numInputWrapper:hover .drum-arrow.up {
+    transform: translateX(-50%) translateY(-2px);
+}
+.flatpickr-time .numInputWrapper:hover .drum-arrow.down {
+    transform: translateX(-50%) translateY(2px);
+}
+
+/* Number bump animation */
+@keyframes drumBumpUp {
+    0%   { transform: translateY(0); }
+    30%  { transform: translateY(-6px); opacity: 0.7; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes drumBumpDown {
+    0%   { transform: translateY(0); }
+    30%  { transform: translateY(6px); opacity: 0.7; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.flatpickr-time input.bump-up {
+    animation: drumBumpUp .25s cubic-bezier(.22,.9,.3,1);
+}
+.flatpickr-time input.bump-down {
+    animation: drumBumpDown .25s cubic-bezier(.22,.9,.3,1);
+}
+
+/* The colon separator */
+.flatpickr-time-separator {
+    font-size: 1.8rem !important;
+    font-weight: 800 !important;
+    color: var(--accent) !important;
+    width: 28px !important;
+    flex: none !important;
+    text-align: center;
+    line-height: 80px;
+    animation: colonPulse 2s ease-in-out infinite;
+}
+@keyframes colonPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+}
+
+/* AM/PM toggle (if ever used) */
+.flatpickr-time .flatpickr-am-pm {
+    background: #fff !important;
+    border: 2px solid rgba(20,30,60,0.10) !important;
+    border-radius: 16px !important;
+    height: 80px !important;
+    width: 60px !important;
+    flex: none !important;
+    font-weight: 700 !important;
+    color: var(--accent) !important;
+    font-size: .9rem !important;
+    transition: background .12s;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.flatpickr-time .flatpickr-am-pm:hover {
+    background: rgba(43,140,255,0.06) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Selects — glass capsule with chevron + gradient combined
+   ══════════════════════════════════════════════════════════ */
 select {
     -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
+    appearance: none;
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%231a3a5c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+        no-repeat right 14px center / 12px 8px,
+        linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9));
+    padding-right: 44px;
     cursor: pointer;
 }
+select:focus {
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232b8cff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+        no-repeat right 14px center / 12px 8px,
+        #fff;
+}
 
-/* Make flatpickr alt inputs and normal date inputs match the form style */
+/* ══════════════════════════════════════════════════════════
+   Date inputs — calendar icon + gradient combined
+   ══════════════════════════════════════════════════════════ */
 .flatpickr-input,
 .flatpickr-alt-input,
 input[type="date"],
 input[type="text"].date-like {
     -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
+    appearance: none;
     cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
+    padding-right: 48px;
 }
 
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
-}
-
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
 input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231a3a5c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect><line x1='16' y1='2' x2='16' y2='6'></line><line x1='8' y1='2' x2='8' y2='6'></line><line x1='3' y1='10' x2='21' y2='10'></line></svg>")
+        no-repeat right 14px center / 18px 18px,
+        linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,255,0.9));
+}
+input[type="text"].date-like:focus,
+input[type="text"].date-like.active {
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect><line x1='16' y1='2' x2='16' y2='6'></line><line x1='8' y1='2' x2='8' y2='6'></line><line x1='3' y1='10' x2='21' y2='10'></line></svg>")
+        no-repeat right 14px center / 18px 18px,
+        #fff;
 }
 
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
+/* ══════════════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    body { padding: 0 12px 32px; }
+    .header-inner { padding: 18px 20px; }
+    .card { padding: 20px 18px 18px; }
+    .form-grid { grid-template-columns: 1fr; }
 
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
+    .risk-row,
+    .risk-row.header {
+        grid-template-columns: 30px 1fr 90px;
     }
-}
+    .col-desc { display: none; }
 
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
-input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
-
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
-}
-
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
-input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
-
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
-}
-
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
-input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
-
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
-}
-
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
-input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
-
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
-}
-
-/* Replace the large native clock with a subtle 16px SVG clock for the "Time observation" field */
-#soapTimeframe,
-input[type="datetime-local"] {
-    /* keep native functionality but prepare space for a custom icon */
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px 16px;
-    padding-right: 44px; /* room for the icon */
-}
-
-/* Hide the oversized native picker icon in WebKit while keeping it usable */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    opacity: 0;              /* visually hide */
-    pointer-events: none;    /* allow clicks to pass to the input so the native picker opens */
-    display: block;
-    width: auto;
-    height: auto;
-}
-
-/* Small, crisp clock SVG (stroke color uses hex encoded #123057) */
-#soapTimeframe {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly accent the icon on focus for affordance */
-#soapTimeframe:focus {
-    box-shadow: 0 8px 30px rgba(43,140,255,0.10);
-    border-color: var(--accent);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232b8cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'></circle><path d='M12 7v5l3 2'></path></svg>");
-}
-
-/* Slightly smaller icon and padding on narrow screens */
-@media (max-width: 480px) {
-    #soapTimeframe,
-    input[type="datetime-local"] {
-        background-size: 14px 14px;
-        padding-right: 38px;
-        background-position: right 10px center;
-    }
-}
-
-/* Better-looking selects & date inputs (custom arrow + consistent padding) */
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;        /* standard property defined for compatibility */
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23123057' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px 8px;
-    padding-right: 44px; /* room for the arrow */
-    cursor: pointer;
-}
-
-/* Make flatpickr alt inputs and normal date inputs match the form style */
-.flatpickr-input,
-.flatpickr-alt-input,
-input[type="date"],
-input[type="text"].date-like {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;       /* standard property for compatibility */
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(20,30,60,0.07);
-    background: linear-gradient(180deg, #fff, #fbfdff);
-    font-size:0.96rem;
-    color:var(--text);
-    outline:none;
-    transition: box-shadow .12s ease, border-color .12s ease, transform .06s;
-    min-height:42px;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    padding-right:44px;
-}
-
-/* Circle transitions aligned with buttons (faster, same feel) */
-.circle {
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid rgba(30,40,60,0.12);
-    background: linear-gradient(180deg,#fff,#f7fbff);
-    color:#2d3748;
-    box-shadow: 0 6px 14px rgba(20,30,60,0.04);
-    margin:0;
-    transform:none;
-    cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease; /* match button timing */
-    will-change: transform, box-shadow, background;
-}
-
-/* Hover / active states to mimic the Generate/Copy button "pop" */
-.col-yn label.circle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(43,140,255,0.14); /* same visual weight as button */
-}
-.col-yn label.circle:active {
-    transform: translateY(0);
-}
-
-.col-yn label.circle.yes { border-color: rgba(59,179,163,0.18); }
-.col-yn label.circle.no  { border-color: rgba(200,210,220,0.08); }
-
-.col-yn input[type="radio"]:checked + label.circle {
-    background: linear-gradient(180deg, var(--accent), #1f6fe0);
-    color:#fff;
-    border-color:var(--accent);
-    box-shadow: 0 10px 26px rgba(43,140,255,0.16);
-    transform: translateY(-2px); /* subtle lift only */
-}
-
-/* Muted helper text */
-.muted { color:var(--muted); font-size:.9rem; margin:6px 0 12px; }
-
-/* Risk output */
-.risk-output {
-    margin-top:12px;
-    padding:12px;
-    background: linear-gradient(180deg,#fff,#fbfdff);
-    border-radius:8px;
-    border:1px solid rgba(20,30,60,0.03);
-    min-height:80px;
-    font-family: ui-monospace, Menlo, Monaco, monospace;
-    color:#123857;
-}
-
-/* Footer */
-.footer { max-width:1100px; margin:22px auto 0; color:var(--muted); text-align:center; }
-
-/* --- animations: entrance + subtle hover --- */
-@keyframes enter {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(8px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* card entrance */
-.card {
-  animation: enter .36s cubic-bezier(.22,.9,.3,1) both;
-}
-
-/* risk-row entrance + hover polish */
-.risk-row {
-  will-change: transform, box-shadow, opacity;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .16s ease;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeInUp .38s cubic-bezier(.22,.9,.3,1) forwards;
-  animation-delay: .06s;
-}
-
-.risk-row.header { 
-  opacity: 1; 
-  transform: none; 
-  animation: none;
-}
-
-/* small stagger for subsequent rows (keeps simple and predictable) */
-.risk-table .risk-row:not(.header) { animation-delay: .06s; }
-.risk-table .risk-row:not(.header):nth-of-type(2)  { animation-delay: .08s; }
-.risk-table .risk-row:not(.header):nth-of-type(3)  { animation-delay: .10s; }
-.risk-table .risk-row:not(.header):nth-of-type(4)  { animation-delay: .12s; }
-.risk-table .risk-row:not(.header):nth-of-type(5)  { animation-delay: .14s; }
-
-/* hover lift */
-.risk-row:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 14px 36px rgba(12,24,40,0.06);
-}
-
-/* circle transitions already present; ensure smooth transform origin */
-.circle {
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  transform-origin: center center;
-  will-change: transform, box-shadow, background;
+    .flatpickr-calendar { width: 290px !important; }
+    .flatpickr-calendar.hasTime { width: 290px !important; }
 }
