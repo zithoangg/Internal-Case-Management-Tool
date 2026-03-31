@@ -115,21 +115,45 @@ function generateSOAPNote() {
     const ascDetails = (el('soapAscDetails')?.value || '').trim();
     const assessment = (el('soapAssessment')?.value || '').trim();
     const plan = (el('soapPlan')?.value || '').trim();
+    const objective = (el('soapObjective')?.value || '').trim();
 
-    let soap = `S – Subjective / Issue Description:\n${subject}\n\n`;
-    soap += `O – Objective / Environment:\n`;
-    soap += `Subscription ID: ${subscriptionId}\n`;
-    soap += `Affected Resource ID: ${resourceId}\n`;
-    soap += `Timeframe of Issue Observation: ${timeframe}\n`;
-    soap += `Is FQR Sent: ${isFqr}\n`;
-    soap += `Possible FDR: ${possibleFdr}\n`;
-    if (fdrExplain) soap += `FDR explanation: ${fdrExplain}\n`;
-    soap += `Has ASC Been Viewed/Used in the Case: ${ascViewed}\n`;
-    soap += `Any Insights Generated in ASC: ${ascInsights}\n`;
-    if (ascDetails) soap += `ASC Insights Details: ${ascDetails}\n`;
-    soap += `\nA – Assessment:\n${assessment}\n\n`;
-    soap += `P – Plan:\n${plan}\n`;
-    return soap;
+    const h = (text) => `<div><b><u>${text}</u></b></div>`;
+    const spacer = `<div style="height:10px;"></div>`;
+    const c = (v) => v ? escapeHtml(v) : '';
+
+    let html = '';
+    html += h('S – Subjective / Issue Description:') + spacer + `<div>${c(subject)}</div><br>`;
+    html += h('O – Objective / Environment:') + spacer;
+    if (objective) html += `<div>${c(objective)}</div>`;
+    html += `<div>Subscription ID: ${c(subscriptionId)}</div>`;
+    html += `<div>Affected Resource ID: ${c(resourceId)}</div>`;
+    html += `<div>Timeframe of Issue Observation: ${c(timeframe)}</div>`;
+    html += `<div>Is FQR Sent: ${c(isFqr)}</div>`;
+    html += `<div>Possible FDR: ${c(possibleFdr)}</div>`;
+    if (fdrExplain) html += `<div>FDR explanation: ${c(fdrExplain)}</div>`;
+    html += `<div>Has ASC Been Viewed/Used in the Case: ${c(ascViewed)}</div>`;
+    html += `<div>Any Insights Generated in ASC: ${c(ascInsights)}</div>`;
+    if (ascDetails) html += `<div>ASC Insights Details: ${c(ascDetails)}</div>`;
+    html += `<br>` + h('A – Assessment:') + spacer + `<div>${c(assessment)}</div><br>`;
+    html += h('P – Plan:') + spacer + `<div>${c(plan)}</div>`;
+
+    // Plain text fallback
+    let plain = `S – Subjective / Issue Description:\n${subject}\n\n`;
+    plain += `O – Objective / Environment:\n`;
+    if (objective) plain += `${objective}\n\n`;
+    plain += `Subscription ID: ${subscriptionId}\n`;
+    plain += `Affected Resource ID: ${resourceId}\n`;
+    plain += `Timeframe of Issue Observation: ${timeframe}\n`;
+    plain += `Is FQR Sent: ${isFqr}\n`;
+    plain += `Possible FDR: ${possibleFdr}\n`;
+    if (fdrExplain) plain += `FDR explanation: ${fdrExplain}\n`;
+    plain += `Has ASC Been Viewed/Used in the Case: ${ascViewed}\n`;
+    plain += `Any Insights Generated in ASC: ${ascInsights}\n`;
+    if (ascDetails) plain += `ASC Insights Details: ${ascDetails}\n`;
+    plain += `\nA – Assessment:\n${assessment}\n\n`;
+    plain += `P – Plan:\n${plan}\n`;
+
+    return { html, plain };
 }
 
 function stripHtml(html) {
@@ -170,65 +194,159 @@ function fallbackPlainCopy(text) {
     }
 }
 
+/* ── Enhanced drum-roller time interaction ── */
+function enhanceTimeDrums(fp) {
+    if (!fp || !fp.calendarContainer) return;
+    const wrappers = fp.calendarContainer.querySelectorAll('.flatpickr-time .numInputWrapper');
+    wrappers.forEach(function(wrap) {
+        if (wrap._drumEnhanced) return;  // don't double-bind
+        wrap._drumEnhanced = true;
+
+        const input = wrap.querySelector('input');
+        if (!input) return;
+
+        // ── Add decorative elements ──
+        if (!wrap.querySelector('.drum-arrow')) {
+            const arrowUp = document.createElement('span');
+            arrowUp.className = 'drum-arrow up';
+            const arrowDown = document.createElement('span');
+            arrowDown.className = 'drum-arrow down';
+            const hint = document.createElement('span');
+            hint.className = 'scroll-hint';
+            hint.textContent = 'scroll · drag';
+            wrap.appendChild(arrowUp);
+            wrap.appendChild(arrowDown);
+            wrap.appendChild(hint);
+        }
+
+        // ── Helper: change value by step ──
+        function stepValue(direction) {
+            // direction: 1 = up, -1 = down
+            const step = parseInt(input.step) || 1;
+            const min  = parseInt(input.min)  || 0;
+            const max  = parseInt(input.max)  || 59;
+            let val = parseInt(input.value) || 0;
+
+            val += direction * step;
+            if (val > max) val = min;
+            if (val < min) val = max;
+
+            input.value = String(val).padStart(2, '0');
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // Bump animation
+            input.classList.remove('bump-up', 'bump-down');
+            void input.offsetWidth; // force reflow
+            input.classList.add(direction > 0 ? 'bump-up' : 'bump-down');
+            setTimeout(function() { input.classList.remove('bump-up', 'bump-down'); }, 260);
+        }
+
+        // ── Scroll wheel ──
+        wrap.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            stepValue(e.deltaY < 0 ? 1 : -1);
+        }, { passive: false });
+
+        // ── Click + Drag ──
+        let dragStartY = null;
+        let dragAccumulator = 0;
+        const DRAG_THRESHOLD = 18; // px per step
+
+        wrap.addEventListener('mousedown', function(e) {
+            if (e.target === input && document.activeElement === input) return; // let normal focus work
+            e.preventDefault();
+            dragStartY = e.clientY;
+            dragAccumulator = 0;
+            wrap.classList.add('dragging');
+            document.body.style.cursor = 'ns-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (dragStartY === null) return;
+            const delta = dragStartY - e.clientY;
+            dragAccumulator += delta;
+            dragStartY = e.clientY;
+
+            if (Math.abs(dragAccumulator) >= DRAG_THRESHOLD) {
+                const steps = Math.trunc(dragAccumulator / DRAG_THRESHOLD);
+                stepValue(steps > 0 ? 1 : -1);
+                dragAccumulator -= steps * DRAG_THRESHOLD;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (dragStartY === null) return;
+            dragStartY = null;
+            dragAccumulator = 0;
+            wrap.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        });
+
+        // ── Touch drag (mobile) ──
+        let touchStartY = null;
+        let touchAccum = 0;
+
+        wrap.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+            touchAccum = 0;
+            wrap.classList.add('dragging');
+        }, { passive: true });
+
+        wrap.addEventListener('touchmove', function(e) {
+            if (touchStartY === null) return;
+            e.preventDefault();
+            const delta = touchStartY - e.touches[0].clientY;
+            touchAccum += delta;
+            touchStartY = e.touches[0].clientY;
+
+            if (Math.abs(touchAccum) >= DRAG_THRESHOLD) {
+                const steps = Math.trunc(touchAccum / DRAG_THRESHOLD);
+                stepValue(steps > 0 ? 1 : -1);
+                touchAccum -= steps * DRAG_THRESHOLD;
+            }
+        }, { passive: false });
+
+        wrap.addEventListener('touchend', function() {
+            touchStartY = null;
+            touchAccum = 0;
+            wrap.classList.remove('dragging');
+        });
+
+        // ── Keyboard arrows when focused ──
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp') { e.preventDefault(); stepValue(1); }
+            if (e.key === 'ArrowDown') { e.preventDefault(); stepValue(-1); }
+        });
+    });
+}
+
 /* Wire up events */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Bootstrap-friendly date & datetime pickers ---
-    // Next contact date: date-only (Bootstrap DatePicker)
-    if (window.jQuery && $('#nextContactDate').length) {
-        $('#nextContactDate').datepicker({
-            format: 'yyyy-mm-dd',    // machine-friendly (generateTitle expects this)
-            autoclose: true,
-            todayHighlight: true,
-            orientation: "bottom auto"
-        }).on('changeDate', function(e){
-            // keep the native input value in yyyy-mm-dd (done automatically), update any UI flags used elsewhere
-            // no-op placeholder to ensure compatibility with existing generateTitle()
+    // --- Flatpickr date & datetime pickers ---
+    if (typeof flatpickr === 'function') {
+        // Next contact date: date-only
+        flatpickr('#nextContactDate', {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            animate: true
         });
 
-        // Timeframe of observation: datetime (Tempus Dominus)
-        // wrap input if not already wrapped by an input-group (tempusdominus works with the input)
-        if (window.moment && window.tempusDominus || window.tempusdominus || typeof $.fn.datetimepicker === 'function') {
-            try {
-                // Try tempusdominus (Bootstrap 4) initialization
-                $('#soapTimeframe').datetimepicker({
-                    format: 'YYYY-MM-DD HH:mm',     // machine-friendly string used by generateSOAPNote -> formatDateTimeLocal
-                    icons: {
-                        time: 'fas fa-clock',
-                        date: 'fas fa-calendar',
-                        up: 'fas fa-chevron-up',
-                        down: 'fas fa-chevron-down',
-                        previous: 'fas fa-chevron-left',
-                        next: 'fas fa-chevron-right',
-                        today: 'far fa-calendar-check',
-                        clear: 'far fa-trash-alt',
-                        close: 'fas fa-times'
-                    },
-                    sideBySide: true,
-                    stepping: 5,
-                    showClose: true
-                });
-
-                // When user selects a date/time, ensure the input value is in the expected machine format
-                $('#soapTimeframe').on('change.datetimepicker', function(e){
-                    // e.date is a moment object in tempusdominus v5; format and set input value
-                    if (e && e.date && typeof e.date.format === 'function') {
-                        const formatted = e.date.format('YYYY-MM-DD HH:mm');
-                        // set both the visible input value and underlying value used by your code
-                        $(this).find('input').val(formatted);
-                        // if the input is the element itself:
-                        if ($(this).is('input')) $(this).val(formatted);
-                    }
-                });
-            } catch (err) {
-                // fallback: use simple bootstrap-datepicker (date-only) if datetime picker fails
-                $('#soapTimeframe').datepicker({
-                    format: 'yyyy-mm-dd',
-                    autoclose: true,
-                    todayHighlight: true
-                });
-            }
-        }
+        // Timeframe of observation: date + time
+        flatpickr('#soapTimeframe', {
+            enableTime: true,
+            dateFormat: 'Y-m-d H:i',
+            time_24hr: true,
+            minuteIncrement: 5,
+            allowInput: true,
+            animate: true,
+            onReady: function(_, __, fp) { enhanceTimeDrums(fp); },
+            onOpen: function(_, __, fp) { enhanceTimeDrums(fp); }
+        });
     }
 
     // --- keep the rest of your wiring as-is ---
@@ -257,13 +375,17 @@ document.addEventListener('DOMContentLoaded', () => {
         copyToClipboard(html, { asHTML:true, fallbackPlain: plain });
     });
 
-    el('generateSOAPNote')?.addEventListener('click', () => el('soapOutput').value = generateSOAPNote());
+    el('generateSOAPNote')?.addEventListener('click', () => {
+        const { html } = generateSOAPNote();
+        const out = el('soapOutput');
+        if (out) out.innerHTML = html;
+    });
     el('copySOAPNote')?.addEventListener('click', () => {
         const out = el('soapOutput');
-        const text = (out && out.value) ? out.value : generateSOAPNote();
-        copyToClipboard(text, { asHTML:false });
+        if (!out) return;
+        const html = out.innerHTML;
+        const plain = stripHtml(html);
+        copyToClipboard(html, { asHTML:true, fallbackPlain: plain });
     });
 
-    document.querySelectorAll('.risk-table input[type="radio"]').forEach(r => r.addEventListener('change', () => generateRiskNote()));
-    generateRiskNote();
 });
