@@ -140,9 +140,15 @@
         </div>
         <div class="sm:col-span-2">
           <label class="label" for="soapDate">Timeframe of observation</label>
-          <input id="soapDate" type="text" class="field date-like js-nostore" placeholder="Select date &amp; time" autocomplete="off" readonly />
+          <div class="dt-field">
+            <input id="soapDate" type="text" class="field date-like js-nostore" placeholder="Select date &amp; time" autocomplete="off" readonly aria-haspopup="dialog" aria-expanded="false" />
+            <div id="soapDtPopover" class="dt-popover" role="dialog" aria-label="Select date and time">
+              <div id="soapCal" class="dt-cal"></div>
+              <div id="soapTimes" class="dt-times" role="listbox" aria-label="Time"></div>
+            </div>
+          </div>
           <input id="soapTimeframe" type="hidden" />
-          <small class="mt-1 block text-xs text-slate-500">Pick date &amp; 24-hour time in one popup</small>
+          <small class="mt-1 block text-xs text-slate-500">Pick a date, then a time</small>
         </div>
         <div>
           <label class="label" for="soapIsFqr">Is FQR sent</label>

@@ -50,7 +50,8 @@ const EN_LOCALE = {
 
 /* Picker instances (set up in init). */
 let nextContactDp = null;
-let soapDateDp = null;
+let soapCalDp = null;
+let soapTime = ""; // "HH:MM" chosen from the time list
 
 /* ── Tiny helpers ─────────────────────────────────────────────── */
 function el(id) { return document.getElementById(id); }
@@ -84,12 +85,6 @@ function parseDateTime(s) {
   const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec((s || "").trim());
   if (!m) return null;
   return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] || 0), Number(m[5] || 0));
-}
-
-/* Local Date → "yyyy-MM-dd HH:mm". */
-function fmtDateTime(date) {
-  if (!date) return "";
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
 /* ── Note building blocks (inline styles → survive paste into Outlook/ICM/Teams) ── */
@@ -352,15 +347,57 @@ function clearFields(ids, render, outId) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SOAP timeframe
-   (one Air Datepicker carrying date + 24-hour time in a single popup →
-    stored in the hidden #soapTimeframe as "yyyy-MM-dd HH:mm")
+   SOAP timeframe — one popover with an inline calendar + a scrollable
+   time list (Google Calendar / Calendly style). Result is stored in the
+   hidden #soapTimeframe as "yyyy-MM-dd HH:mm".
    ════════════════════════════════════════════════════════════════ */
-function setSoapTimeframe(date) {
+const SOAP_TIME_STEP = 15; // minutes between options in the time list
+
+function buildSoapTimes() {
+  const wrap = el("soapTimes");
+  if (!wrap) return;
+  let html = "";
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += SOAP_TIME_STEP) {
+      const t = `${pad2(h)}:${pad2(m)}`;
+      html += `<button type="button" class="dt-time" role="option" data-time="${t}">${t}</button>`;
+    }
+  }
+  wrap.innerHTML = html;
+}
+
+function markSoapTime() {
+  el("soapTimes")?.querySelectorAll(".dt-time").forEach((b) => {
+    const on = b.dataset.time === soapTime;
+    b.classList.toggle("sel", on);
+    b.setAttribute("aria-selected", String(on));
+  });
+}
+
+function combineSoapDateTime() {
+  const d = soapCalDp && soapCalDp.selectedDates && soapCalDp.selectedDates[0];
+  const ymd = d ? `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}` : "";
+  const combined = ymd ? (soapTime ? `${ymd} ${soapTime}` : ymd) : "";
+  if (el("soapDate")) el("soapDate").value = combined;
   const hidden = el("soapTimeframe");
-  if (!hidden) return;
-  hidden.value = fmtDateTime(date);
-  hidden.dispatchEvent(new Event("input", { bubbles: true })); // → renderSoap + autosave (wired)
+  if (hidden) { hidden.value = combined; hidden.dispatchEvent(new Event("input", { bubbles: true })); }
+}
+
+function openSoapPicker() {
+  const pop = el("soapDtPopover");
+  if (!pop) return;
+  pop.classList.add("open");
+  el("soapDate")?.setAttribute("aria-expanded", "true");
+  const list = el("soapTimes");
+  const target = list?.querySelector(".dt-time.sel") || list?.querySelector('[data-time="08:00"]');
+  target?.scrollIntoView({ block: "center" });
+}
+function closeSoapPicker() {
+  el("soapDtPopover")?.classList.remove("open");
+  el("soapDate")?.setAttribute("aria-expanded", "false");
+}
+function toggleSoapPicker() {
+  el("soapDtPopover")?.classList.contains("open") ? closeSoapPicker() : openSoapPicker();
 }
 
 /* Restore the calendars from saved values after applyState(). */
@@ -369,18 +406,29 @@ function hydratePickers() {
   if (ncd && nextContactDp) { const d = parseDateTime(ncd); if (d) nextContactDp.selectDate(d, { silent: true }); }
 
   const combined = val("soapTimeframe");
-  if (combined && soapDateDp) { const d = parseDateTime(combined); if (d) soapDateDp.selectDate(d, { silent: true }); }
+  if (!combined) return;
+  const d = parseDateTime(combined);
+  if (d && soapCalDp) soapCalDp.selectDate(d, { silent: true });
+  const timePart = combined.split(" ")[1];
+  if (timePart) soapTime = timePart;
+  markSoapTime();
+  if (el("soapDate")) el("soapDate").value = combined;
 }
 
 function setupPickers() {
   if (!AirDatepicker) {
     // Self-hosted picker failed to load → let users type into the fields instead of being stuck.
-    ["nextContactDate", "soapDate"].forEach((id) => el(id)?.removeAttribute("readonly"));
+    el("nextContactDate")?.removeAttribute("readonly");
     el("nextContactDate")?.addEventListener("input", () => { renderTitle(); scheduleSave(); });
-    el("soapDate")?.addEventListener("input", () => {
-      const hidden = el("soapTimeframe");
-      if (hidden) { hidden.value = val("soapDate"); hidden.dispatchEvent(new Event("input", { bubbles: true })); }
-    });
+    const sd = el("soapDate");
+    if (sd) {
+      sd.removeAttribute("readonly");
+      sd.setAttribute("placeholder", "yyyy-mm-dd HH:MM");
+      sd.addEventListener("input", () => {
+        const hidden = el("soapTimeframe");
+        if (hidden) { hidden.value = sd.value; hidden.dispatchEvent(new Event("input", { bubbles: true })); }
+      });
+    }
     return;
   }
 
@@ -391,16 +439,34 @@ function setupPickers() {
     onSelect: () => { renderTitle(); scheduleSave(); },
   });
 
-  // Date + 24-hour time in one popup; 5-minute steps keep the slider easy to land.
-  soapDateDp = new AirDatepicker(el("soapDate"), {
+  // Inline calendar + time list, both inside #soapDtPopover.
+  buildSoapTimes();
+  soapCalDp = new AirDatepicker(el("soapCal"), {
     locale: EN_LOCALE,
     dateFormat: DATE_FMT,
-    timepicker: true,
-    timeFormat: "HH:mm",
-    minutesStep: 5,
-    autoClose: false, // stay open so the time can be set after the day
-    onSelect: ({ date }) => setSoapTimeframe(Array.isArray(date) ? date[0] : date),
+    inline: true,
+    onSelect: () => combineSoapDateTime(),
   });
+
+  const field = el("soapDate");
+  field?.addEventListener("click", (e) => { e.stopPropagation(); toggleSoapPicker(); });
+  // Keep in-popover clicks from reaching the outside-click handler below. The calendar
+  // re-renders its day cells on select, detaching the clicked node — so a contains()
+  // check on the document handler would wrongly treat it as an outside click.
+  el("soapDtPopover")?.addEventListener("click", (e) => e.stopPropagation());
+  el("soapTimes")?.addEventListener("click", (e) => {
+    const b = e.target.closest(".dt-time");
+    if (!b) return;
+    soapTime = b.dataset.time;
+    markSoapTime();
+    combineSoapDateTime();
+    if (soapCalDp.selectedDates && soapCalDp.selectedDates.length) closeSoapPicker();
+  });
+  document.addEventListener("click", (e) => {
+    const pop = el("soapDtPopover");
+    if (pop && !pop.contains(e.target) && e.target !== field) closeSoapPicker();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSoapPicker(); });
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -500,7 +566,11 @@ function init() {
   el("clearCase")?.addEventListener("click", () => clearFields(CASE_IDS, renderCase, "caseNoteOutput"));
   el("clearSoap")?.addEventListener("click", () => {
     clearFields(SOAP_IDS, renderSoap, "soapOutput");
-    if (soapDateDp) soapDateDp.clear(); else if (el("soapDate")) el("soapDate").value = "";
+    soapCalDp?.clear();
+    soapTime = "";
+    markSoapTime();
+    if (el("soapDate")) el("soapDate").value = "";
+    closeSoapPicker();
     document.querySelectorAll("[data-validate]").forEach(validateField);
   });
   el("clearRisk")?.addEventListener("click", () => {
