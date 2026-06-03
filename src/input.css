@@ -207,20 +207,39 @@ input.yn-radio[value="N"]:checked + label.circle {
    SOAP date + time popover (inline calendar + scrollable time list)
    ══════════════════════════════════════════════════════════ */
 .dt-field { position: relative; }
+/* Appended to <body> and positioned in JS, so the card's overflow:hidden can't clip it. */
 .dt-popover {
-  position: absolute;
-  z-index: 60;
-  top: calc(100% + 6px);
+  position: fixed;
+  z-index: 9999;
+  top: 0;
   left: 0;
   display: none;
   gap: 6px;
   padding: 10px;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
   background: #fff;
   border: 1px solid rgba(20, 30, 60, 0.10);
   border-radius: 16px;
   box-shadow: 0 14px 44px rgba(12, 24, 40, 0.16), 0 2px 8px rgba(12, 24, 40, 0.06);
 }
 .dt-popover.open { display: flex; }
+/* On phones the side-by-side layout is too wide — stack the time list below as chips. */
+@media (max-width: 639px) {
+  .dt-popover { flex-direction: column; }
+  .dt-times {
+    width: 100%;
+    max-height: 132px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-left: 0;
+    border-top: 1px solid rgba(20, 30, 60, 0.08);
+    padding-left: 0;
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+  .dt-time { flex: 0 0 auto; min-width: 3.4rem; }
+}
 /* Inline calendar sits flush inside our own popover card */
 .dt-cal .air-datepicker {
   border: 0;
