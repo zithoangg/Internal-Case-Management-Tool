@@ -1,0 +1,14 @@
+{
+  "name": "internal-case-management-tool",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Internal note-generator for Azure support engineers (Title / Case / Risk / SOAP).",
+  "scripts": {
+    "build": "tailwindcss -i ./src/input.css -o ./app.css --minify",
+    "watch": "tailwindcss -i ./src/input.css -o ./app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  }
+}
