@@ -192,45 +192,70 @@ input.yn-radio[value="N"]:checked + label.circle {
   --adp-cell-background-color-in-range-hover: rgba(43, 140, 255, 0.16);
   --adp-day-cell-hover-bg: rgba(43, 140, 255, 0.10);
   --adp-pointer-size: 0;
-  /* Timepicker (built-in, combined with the calendar) — brand-matched */
-  --adp-time-track-height: 4px;
-  --adp-time-track-color: rgba(43, 140, 255, 0.22);
-  --adp-time-track-color-hover: var(--color-brand-500);
-  --adp-time-day-period-color: var(--color-brand-600);
   border: 1px solid rgba(20, 30, 60, 0.06);
   box-shadow: 0 12px 40px rgba(12, 24, 40, 0.16), 0 2px 8px rgba(12, 24, 40, 0.06);
 }
 /* No fade-in — matches the site's deliberately low-motion feel. */
 .air-datepicker.-active-:not(.-custom-position-) { transition: none; }
-
-/* Prominent, on-brand time read-out (default uses Century Gothic) */
-.air-datepicker-time--current {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  color: var(--color-brand-900);
-}
-.air-datepicker-time--current-hours,
-.air-datepicker-time--current-minutes { font-size: 18px; }
-
-/* Round, branded slider thumbs (override the default 12px squares) */
-.air-datepicker-time--row input[type="range"]::-webkit-slider-thumb {
-  height: 16px; width: 16px; border-radius: 50%;
-  border: 2px solid #fff;
-  background: var(--color-brand-500);
-  box-shadow: 0 1px 4px rgba(12, 24, 40, 0.35);
-  margin-top: -6px; /* center on the 4px track */
-}
-.air-datepicker-time--row input[type="range"]::-moz-range-thumb {
-  height: 16px; width: 16px; border-radius: 50%;
-  border: 2px solid #fff;
-  background: var(--color-brand-500);
-  box-shadow: 0 1px 4px rgba(12, 24, 40, 0.35);
-}
 .air-datepicker-nav,
 .air-datepicker--navigation { font-weight: 700; }
 .air-datepicker-nav--title,
 .air-datepicker-body--day-name { font-weight: 700; }
 .air-datepicker-cell.-day-.-today- { color: var(--color-brand-600); font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════
+   SOAP date + time popover (inline calendar + scrollable time list)
+   ══════════════════════════════════════════════════════════ */
+.dt-field { position: relative; }
+.dt-popover {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  display: none;
+  gap: 6px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid rgba(20, 30, 60, 0.10);
+  border-radius: 16px;
+  box-shadow: 0 14px 44px rgba(12, 24, 40, 0.16), 0 2px 8px rgba(12, 24, 40, 0.06);
+}
+.dt-popover.open { display: flex; }
+/* Inline calendar sits flush inside our own popover card */
+.dt-cal .air-datepicker {
+  border: 0;
+  box-shadow: none;
+  --adp-padding: 0;
+}
+.dt-times {
+  width: 5.5rem;
+  max-height: 16.75rem; /* ≈ calendar height */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(20, 30, 60, 0.08);
+  scrollbar-width: thin;
+}
+.dt-time {
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 7px 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.dt-time:hover { background: var(--color-brand-50); }
+.dt-time.sel {
+  background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600));
+  color: #fff;
+}
 
 /* ══════════════════════════════════════════════════════════
    Motion — refined, subtle, purposeful
