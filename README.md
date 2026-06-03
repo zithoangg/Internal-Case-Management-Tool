@@ -1,69 +1,89 @@
 # Internal Case Management Tool
 
-A small, fast, static web tool that helps internal Azure support engineers produce
-**copy-ready, consistently formatted notes**. Fill in the fields, and each card builds
-its output live — click **Copy** to drop rich text (bold/underline headers, tables)
-straight into ICM, Outlook, or Teams.
+Writing case notes is the part of support that nobody misses when it's done well and
+everybody notices when it's not. This little tool takes the fiddly bits — the formatting,
+the consistent titles, the "did I tick every risk box?" — off your plate.
 
-> Help out internal SEs, hehe.
+Fill in the fields, watch each card assemble itself live, hit **Copy**, and paste
+rich, tidy text straight into ICM, Outlook, or Teams. Bold headers, underlines, a real
+table for the risk matrix — all of it survives the paste.
 
-## What it generates
+No login, no backend, nothing to install. It's a single page that runs in your browser
+and quietly remembers your work as you type.
 
-| Card | What it's for |
-|------|----------------|
-| **Title Generator** | A standardized case title: `[Service level] - [PCY] - Next contact: … - <action>` (+ optional linked ICM). |
-| **Case Note** | Structured working note — Issue Description, ICM Needed, Troubleshooting Done, Communication/Timeline, Next Contact, Next Action. |
-| **Risk Note** | A 12-item Y/N risk checklist. Tapping **Y** flags the row (amber); the generated table records each Y/N. |
-| **SOAP Note** | Subjective / Objective (with subscription, resource, FQR/FDR/ASC fields) / Analysis / Plan. |
+> Built to make internal SEs' lives a little easier. 🙂
 
-## Features
+## The four cards
 
-- **Live preview** — every card updates as you type; one click to **Copy** (rich HTML + plain-text fallback).
-- **Autosave** — all fields and risk selections persist in `localStorage`, so a refresh won't lose your work. **Clear** per card resets it.
-- **Paste-friendly output** — notes use inline styles and semantic blocks so spacing survives in Outlook / ICM / Teams.
-- **Single source of truth** — the risk list and dropdown options live only in `script.js`; the UI is rendered from them.
+| Card | What it gives you |
+|------|-------------------|
+| **Title Generator** | A standardized case title — `[Service level] - [PCY] - Next contact: <date> - <action>`, plus an optional linked ICM. Pick from dropdowns, choose a date, done. |
+| **Case Note** | A structured working note: Issue Description, ICM Needed, Troubleshooting Done, Communication / Timeline, Next Contact, Next Action. |
+| **Risk Note** | A 12-point Y/N risk checklist. Tap **Y** and the whole row lights up amber; the generated table records every answer. |
+| **SOAP Note** | The full Subjective / Objective / Analysis / Plan layout, with the Azure-specific fields baked in — subscription & resource IDs, a date+time "timeframe", and the FQR / FDR / ASC checks. |
 
-## Tech
+## Why it's nice to use
 
-- Plain HTML + vanilla JS (no framework, no jQuery/Bootstrap).
-- **Tailwind CSS v4** for styling, compiled to a self-hosted `app.css` (no runtime CSS CDN).
-- **Flatpickr** for the date/time pickers (the only third-party widget), with a custom drum-roller time UI.
-- Deployed as a static site via **Azure Static Web Apps**.
+- **It writes as you type.** Every card shows a live preview; one click copies it as rich
+  HTML *and* plain text, so it lands cleanly wherever you paste.
+- **It won't lose your work.** Everything autosaves to `localStorage` — refresh, crash,
+  or close the tab and it's all still there. Each card has its own **Clear** when you want
+  a fresh start.
+- **It catches typos before ICM does.** Paste a Subscription ID or Resource ID and it
+  quietly checks the shape (GUID / `/subscriptions/...`) and flags it if something's off.
+- **The SOAP timeframe is one clean popover** — a calendar next to a scrollable list of
+  times, the way Google Calendar and Calendly do it. Pick a day, pick a time, move on.
+- **Paste survives the trip.** Notes use inline styles and real table markup, so spacing
+  and formatting hold up in Outlook / ICM / Teams instead of collapsing into a wall of text.
+- **One source of truth.** The risk list and dropdown options live in exactly one place
+  (`script.js`); the UI is generated from them, so adding a risk or a PCY is a one-line edit.
+
+## Under the hood
+
+- **Plain HTML + vanilla JS.** No framework, no jQuery, no bundler. You can open the page
+  and read every line of what it does.
+- **Tailwind CSS v4**, compiled to a committed `app.css` — no runtime CSS CDN.
+- **[Air Datepicker](https://air-datepicker.com/)** for the calendars, **self-hosted in
+  `vendor/`** so it keeps working on locked-down corporate networks that block public CDNs.
+- Shipped as a static site on **Azure Static Web Apps**.
 
 ## Project layout
 
 ```
 index.html        # markup (Tailwind utility classes)
-script.js         # all logic + the single source of truth (risks, dropdowns)
-src/input.css     # Tailwind source: @theme tokens, components, Flatpickr theme
-app.css           # COMPILED output — committed so deploys work without a build step
-package.json      # build scripts + Tailwind dev dependency
+script.js         # all the logic + the single source of truth (risks, dropdowns)
+src/input.css     # Tailwind source: @theme tokens, components, picker theming
+app.css           # COMPILED output — committed so deploys need no build step
+vendor/           # self-hosted Air Datepicker (JS + CSS) — no runtime CDN
+package.json      # build scripts + dependencies
 ```
 
-## Developing
+## Hacking on it
 
-Requires Node.js. Install once, then run the watcher while editing:
+You only need Node.js to rebuild the CSS — the page itself is just static files.
 
 ```bash
 npm install
-npm run watch      # rebuilds app.css on change
+npm run watch      # rebuild app.css whenever you edit styles or classes
 ```
 
-For a one-off production build (minified):
+For a one-off minified build:
 
 ```bash
 npm run build
 ```
 
-> **Important:** after changing any HTML/JS class names or `src/input.css`, rebuild so
-> `app.css` reflects your changes, and commit `app.css` along with your edits. Tailwind
-> only includes classes it finds in `index.html` and `script.js`, so write full class
-> names as literals (avoid string-concatenating class fragments in JS).
+> **Don't forget to rebuild.** Tailwind only ships the classes it can *see* in
+> `index.html` and `script.js`, so after touching any class names or `src/input.css`,
+> run a build and commit the regenerated `app.css` alongside your change. (And write full
+> class names as literals — don't string-concatenate class fragments in JS, or Tailwind
+> won't find them.)
 
-## Deployment
+## Shipping it
 
-Pushing to `master` triggers the Azure Static Web Apps workflows in `.github/workflows/`.
-The committed `app.css` is served as-is, so deployment needs no build step.
+Push to `master` and the Azure Static Web Apps workflows in `.github/workflows/` take it
+from there. The committed `app.css` and the self-hosted `vendor/` files are served as-is,
+so there's no build step in the pipeline.
 
 ---
 
