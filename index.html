@@ -1,372 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Internal Case Management</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Internal Case Management</title>
+  <link rel="icon" href="favicon.ico" />
 
-<!-- Bootstrap 4 (compatible with SB Admin 2) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 
-<!-- Optional SB Admin 2 CSS (keeps look & utilities) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/startbootstrap/startbootstrap-sb-admin-2@4.1.4/dist/css/sb-admin-2.min.css">
+  <!-- Flatpickr (the only third-party widget we actually use) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 
-<!-- Flatpickr date/time picker (base CSS only — custom theme in styles.css) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-
-<link rel="stylesheet" href="styles.css">
+  <!-- Compiled Tailwind + custom theme -->
+  <link rel="stylesheet" href="app.css">
 </head>
-<body>
-    <header class="header">
-        <div class="header-inner">
-            <h1>Internal Case Management</h1>
+<body class="px-4 pb-16 sm:px-6">
+
+  <!-- ══ Header ══ -->
+  <header class="mx-auto mt-6 max-w-3xl">
+    <div class="relative overflow-hidden rounded-2xl px-8 py-6 text-center shadow-xl"
+         style="background:linear-gradient(135deg,var(--color-brand-500),var(--color-brand-600) 50%,var(--color-brand-700));">
+      <div class="pointer-events-none absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/5"></div>
+      <div class="pointer-events-none absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-white/5"></div>
+      <h1 class="relative text-2xl font-extrabold tracking-tight text-white drop-shadow sm:text-3xl">
+        Internal Case Management
+      </h1>
+      <p class="relative mt-1 text-sm font-medium text-white/80">
+        Generate Title, Case, Risk &amp; SOAP notes — copy-ready. Autosaves as you type.
+      </p>
+    </div>
+  </header>
+
+  <!-- ══ Cards ══ -->
+  <main class="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-6">
+
+    <!-- ── Title Generator ── -->
+    <section class="card" aria-labelledby="title-heading">
+      <h2 id="title-heading" class="section-title">Title Generator</h2>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label" for="nextContactDate">Next contact date</label>
+          <input id="nextContactDate" type="text" class="field date-like" placeholder="Select date" autocomplete="off" />
         </div>
-    </header>
+        <div>
+          <label class="label" for="serviceLevel">Service level</label>
+          <select id="serviceLevel" class="field" aria-label="Service level"></select>
+        </div>
+        <div>
+          <label class="label" for="pcy">PCY</label>
+          <select id="pcy" class="field" aria-label="PCY"></select>
+        </div>
+        <div>
+          <label class="label" for="nextActionTitle">Next action</label>
+          <input id="nextActionTitle" type="text" class="field" placeholder="e.g., Follow-up email with logs" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label" for="icmLinked">ICM linked (optional)</label>
+          <input id="icmLinked" type="text" class="field" placeholder="e.g., 1234567" />
+        </div>
+      </div>
 
-    <main class="container">
-        <section class="card" id="title-card" aria-labelledby="title-heading">
-            <h2 id="title-heading">Title Generator</h2>
-            <div class="form-grid">
-                <div>
-                    <label for="nextContactDate">Next contact date</label>
-                    <input id="nextContactDate" type="text" class="date-like" placeholder="Select date" />
-                </div>
-                <div>
-                    <label for="serviceLevel">Service level</label>
-                    <select id="serviceLevel" aria-label="Service Level">
-                        <option value="BC">BC</option>
-                        <option value="Unified">Unified</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="pcy">PCY</label>
-                    <select id="pcy" aria-label="PCY">
-                        <option value="AppService_Config">AppService_Config</option>
-                        <option value="AppService_Dev">AppService_Dev</option>
-                        <option value="AppService_Perf">AppService_Perf</option>
-                        <option value="Developer_Developer">Developer_Developer</option>
-                        <option value="Developer_Storage">Developer_Storage</option>
-                        <option value="Developer_ServiceBus">Developer_ServiceBus</option>
-                        <option value="WebApps">WebApps</option>
-                        <option value="Browsers">Browsers</option>
-                        <option value="DevOps">DevOps</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="nextActionTitle">Next action</label>
-                    <input id="nextActionTitle" type="text" placeholder="e.g., Follow-up email with logs" />
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label for="icmLinked">ICM linked (optional)</label>
-                    <input id="icmLinked" type="text" placeholder="e.g., 1234567" />
-                </div>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="copyTitle" class="btn btn-primary">Copy</button>
+        <button id="clearTitle" class="btn btn-ghost">Clear</button>
+      </div>
+      <div id="titleOutput" class="output-box font-mono" data-placeholder="Generated title appears here…"></div>
+    </section>
+
+    <!-- ── Case Note ── -->
+    <section class="card" aria-labelledby="case-heading">
+      <h2 id="case-heading" class="section-title">Case Note</h2>
+
+      <label class="label" for="issueDescription">Issue description</label>
+      <textarea id="issueDescription" class="field" placeholder="e.g., VM fails to start with error 'XYZ' when scaling"></textarea>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label" for="icmNeeded">ICM needed</label>
+          <input id="icmNeeded" type="text" class="field" placeholder="Yes / No / Partial" />
+        </div>
+        <div>
+          <label class="label" for="nextContactCase">Next contact (example)</label>
+          <input id="nextContactCase" type="text" class="field" placeholder="e.g., 2025-10-21 - phone" />
+        </div>
+      </div>
+
+      <label class="label mt-4" for="troubleshootingDone">Troubleshooting done</label>
+      <textarea id="troubleshootingDone" class="field" placeholder="Steps taken, tools used, commands run"></textarea>
+
+      <label class="label mt-4" for="communicationTimeline">Communication / Timeline</label>
+      <textarea id="communicationTimeline" class="field" placeholder="e.g., Customer contacted at 09:00 UTC, awaiting logs"></textarea>
+
+      <label class="label mt-4" for="nextActionCase">Next action</label>
+      <input id="nextActionCase" type="text" class="field" placeholder="e.g., Scheduled meeting with customer" />
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="copyCaseNote" class="btn btn-primary">Copy</button>
+        <button id="clearCase" class="btn btn-ghost">Clear</button>
+      </div>
+      <div id="caseNoteOutput" class="output-box" aria-live="polite" data-placeholder="Generated case note appears here…" contenteditable="true"></div>
+    </section>
+
+    <!-- ── Risk Note ── -->
+    <section class="card" aria-labelledby="risk-heading">
+      <h2 id="risk-heading" class="section-title">Risk Note</h2>
+      <p class="mb-3 text-sm text-slate-500">Tap <span class="font-semibold text-flag">Y</span> / N for each risk. <span class="font-semibold text-flag">Y</span> flags the row.</p>
+
+      <!-- Rows are rendered from the single source of truth in script.js -->
+      <div id="riskTable" class="flex flex-col gap-1.5" role="list"></div>
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="copyRiskNote" class="btn btn-primary">Copy</button>
+        <button id="clearRisk" class="btn btn-ghost">Reset to N</button>
+      </div>
+      <div id="riskNoteOutput" class="output-box overflow-x-auto" aria-live="polite" data-placeholder="Generated risk note appears here…" contenteditable="true"></div>
+    </section>
+
+    <!-- ── SOAP Note ── -->
+    <section class="card" aria-labelledby="soap-heading">
+      <h2 id="soap-heading" class="section-title">SOAP Note</h2>
+
+      <label class="label" for="soapSubject">S – Subjective / Issue description</label>
+      <textarea id="soapSubject" class="field" placeholder="SUMMARY — What is the customer experiencing?"></textarea>
+
+      <h3 class="sub-title">O – Objective / Environment</h3>
+      <textarea id="soapObjective" class="field" placeholder="OBJECTIVE — What is the goal? What are we going to do?"></textarea>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label" for="soapSubscriptionId">Subscription ID</label>
+          <input id="soapSubscriptionId" type="text" class="field" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+        </div>
+        <div>
+          <label class="label" for="soapResourceId">Affected Resource ID</label>
+          <input id="soapResourceId" type="text" class="field" placeholder="e.g., /subscriptions/.../resourceGroups/..." />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label">Timeframe of observation</label>
+          <div class="grid grid-cols-2 gap-3">
+            <input id="soapDate" type="text" class="field date-like js-nostore" placeholder="Select date" autocomplete="off" />
+            <div class="relative">
+              <button type="button" id="soapTimeBtn" class="field flex w-full items-center justify-between gap-2 text-left" aria-haspopup="dialog" aria-expanded="false">
+                <span id="soapTimeLabel" class="text-slate-400">Select time</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a5c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+              </button>
+              <div id="soapTimePanel" class="time-panel" role="dialog" aria-label="Select time"></div>
             </div>
+          </div>
+          <input id="soapTimeframe" type="hidden" />
+          <small class="mt-1 block text-xs text-slate-500">Pick date &amp; 24-hour time</small>
+        </div>
+        <div>
+          <label class="label" for="soapIsFqr">Is FQR sent</label>
+          <select id="soapIsFqr" class="field">
+            <option value="">--select--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="soapPossibleFdr">Possible FDR</label>
+          <select id="soapPossibleFdr" class="field">
+            <option value="">--select--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="soapFdrExplain">If FDR not met / explanation</label>
+          <input id="soapFdrExplain" type="text" class="field" placeholder="e.g., Customer unavailable to confirm FDR" />
+        </div>
+        <div>
+          <label class="label" for="soapAscViewed">Has ASC been viewed/used</label>
+          <select id="soapAscViewed" class="field">
+            <option value="">--select--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="soapAscInsights">Any insights generated in ASC</label>
+          <select id="soapAscInsights" class="field">
+            <option value="">--select--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label" for="soapAscDetails">ASC insights (if any)</label>
+          <textarea id="soapAscDetails" class="field" placeholder="Paste ASC insights or short summary"></textarea>
+        </div>
+      </div>
 
-            <div class="actions">
-                <button id="generateTitle">Generate</button>
-                <button id="copyTitle" class="secondary">Copy</button>
-            </div>
-            <textarea id="titleOutput" class="output" placeholder="Generated title appears here"></textarea>
-        </section>
+      <h3 class="sub-title">A – Analysis</h3>
+      <label class="label" for="soapAssessment">Analysis / Findings</label>
+      <textarea id="soapAssessment" class="field" placeholder="ANALYSIS — What did we do? Verbose notes + env data + screenshots"></textarea>
 
-        <section class="card" id="case-card" aria-labelledby="case-heading">
-            <h2 id="case-heading">Case Note</h2>
+      <h3 class="sub-title">P – Plan</h3>
+      <label class="label" for="soapPlan">Outline action plan</label>
+      <textarea id="soapPlan" class="field" placeholder="PLAN — Next customer action"></textarea>
 
-            <label for="issueDescription">Issue description</label>
-            <textarea id="issueDescription" placeholder="e.g., VM fails to start with error 'XYZ' when scaling"></textarea>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button id="copySOAPNote" class="btn btn-primary">Copy</button>
+        <button id="clearSoap" class="btn btn-ghost">Clear</button>
+      </div>
+      <div id="soapOutput" class="output-box min-h-56" aria-live="polite" data-placeholder="Generated SOAP note appears here…" contenteditable="true"></div>
+    </section>
+  </main>
 
-            <div class="form-grid">
-                <div>
-                    <label for="icmNeeded">ICM needed</label>
-                    <input id="icmNeeded" type="text" placeholder="Yes / No / Partial" />
-                </div>
-                <div>
-                    <label for="nextContactCase">Next contact (example)</label>
-                    <input id="nextContactCase" type="text" placeholder="e.g., 2025-10-21 - phone" />
-                </div>
-            </div>
+  <footer class="mx-auto mt-8 max-w-3xl text-center text-sm text-slate-500/70">
+    Credit: Robert Van
+  </footer>
 
-            <label for="troubleshootingDone">Troubleshooting done</label>
-            <textarea id="troubleshootingDone" placeholder="Steps taken, tools used, commands run"></textarea>
+  <!-- Toast container -->
+  <div id="toasts" class="pointer-events-none fixed bottom-5 right-5 z-[100000] flex flex-col items-end gap-2"></div>
 
-            <label for="communicationTimeline">Communication / Timeline</label>
-            <textarea id="communicationTimeline" placeholder="e.g., Customer contacted at 09:00 UTC, awaiting logs"></textarea>
-
-            <label for="nextActionCase">Next action</label>
-            <input id="nextActionCase" type="text" placeholder="e.g., Scheduled meeting with customer" />
-
-            <div class="actions">
-                <button id="generateCaseNote">Generate</button>
-                <button id="copyCaseNote" class="secondary">Copy</button>
-            </div>
-            <div id="caseNoteOutput" class="output" aria-live="polite" placeholder="Generated case note appears here" contenteditable="true"></div>
-        </section>
-
-        <section class="card" id="risk-card" aria-labelledby="risk-heading">
-            <h2 id="risk-heading">Risk Note</h2>
-            <p class="muted">Tap Y / N for each risk. Y flags the row.</p>
-
-            <div class="risk-table" role="list">
-                <div class="risk-row header">
-                    <div class="col col-no">No.</div>
-                    <div class="col col-risk">Risk</div>
-                    <div class="col col-desc">Description</div>
-                    <div class="col col-yn">Y / N</div>
-                </div>
-
-                <!-- explicit rows for stable IDs and circle radios -->
-                <div class="risk-row">
-                    <div class="col col-no">1</div>
-                    <div class="col col-risk">SLA Missed</div>
-                    <div class="col col-desc">IR Missed within queue tie / IR missed in other queue / tooling issue….</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk1_y" name="risk1" value="Y">
-                        <label for="risk1_y" class="circle yes" title="Yes">Y</label>
-                        <input type="radio" id="risk1_n" name="risk1" value="N" checked>
-                        <label for="risk1_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">2</div>
-                    <div class="col col-risk">Hot Zone</div>
-                    <div class="col col-desc">Country with extremely high standard for CS (India, Australia, Japan, etc.)</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk2_y" name="risk2" value="Y">
-                        <label for="risk2_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk2_n" name="risk2" value="N" checked>
-                        <label for="risk2_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <!-- remaining rows (3..12) -->
-                <div class="risk-row">
-                    <div class="col col-no">3</div>
-                    <div class="col col-risk">Response delay / CX escalated</div>
-                    <div class="col col-desc">Customer asked updates and pushing for meeting or posting concerns</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk3_y" name="risk3" value="Y">
-                        <label for="risk3_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk3_n" name="risk3" value="N" checked>
-                        <label for="risk3_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">4</div>
-                    <div class="col col-risk">Product limit / bug / By Design</div>
-                    <div class="col col-desc">Product doesn't satisfy customer environment or portal display issue</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk4_y" name="risk4" value="Y">
-                        <label for="risk4_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk4_n" name="risk4" value="N" checked>
-                        <label for="risk4_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">5</div>
-                    <div class="col col-risk">3rd party / unsupported</div>
-                    <div class="col col-desc">3rd products or out-of-support scenarios</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk5_y" name="risk5" value="Y">
-                        <label for="risk5_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk5_n" name="risk5" value="N" checked>
-                        <label for="risk5_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">6</div>
-                    <div class="col col-risk">SIE / Server outage</div>
-                    <div class="col col-desc">Service outage / Mandatory upgrade -> Impact CX</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk6_y" name="risk6" value="Y">
-                        <label for="risk6_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk6_n" name="risk6" value="N" checked>
-                        <label for="risk6_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">7</div>
-                    <div class="col col-risk">Collaboration issue</div>
-                    <div class="col col-desc">Task owner delays or not responding / no assignment</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk7_y" name="risk7" value="Y">
-                        <label for="risk7_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk7_n" name="risk7" value="N" checked>
-                        <label for="risk7_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">8</div>
-                    <div class="col col-risk">AVA / ICM Issue</div>
-                    <div class="col col-desc">Long wait times / approvals / risky advice</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk8_y" name="risk8" value="Y">
-                        <label for="risk8_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk8_n" name="risk8" value="N" checked>
-                        <label for="risk8_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">9</div>
-                    <div class="col col-risk">Customer resolved</div>
-                    <div class="col col-desc">Issue resolved by customer or by itself</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk9_y" name="risk9" value="Y">
-                        <label for="risk9_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk9_n" name="risk9" value="N" checked>
-                        <label for="risk9_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">10</div>
-                    <div class="col col-risk">Customer disconnected</div>
-                    <div class="col col-desc">Customer unresponsive before confirmation or doesn't want to continue</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk10_y" name="risk10" value="Y">
-                        <label for="risk10_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk10_n" name="risk10" value="N" checked>
-                        <label for="risk10_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">11</div>
-                    <div class="col col-risk">Demanding customer</div>
-                    <div class="col col-desc">Customer repeatedly asks, unhappy with answers</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk11_y" name="risk11" value="Y">
-                        <label for="risk11_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk11_n" name="risk11" value="N" checked>
-                        <label for="risk11_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-
-                <div class="risk-row">
-                    <div class="col col-no">12</div>
-                    <div class="col col-risk">Challenging history</div>
-                    <div class="col col-desc">History of low surveys or frequent escalations</div>
-                    <div class="col col-yn">
-                        <input type="radio" id="risk12_y" name="risk12" value="Y">
-                        <label for="risk12_y" class="circle yes">Y</label>
-                        <input type="radio" id="risk12_n" name="risk12" value="N" checked>
-                        <label for="risk12_n" class="circle no" title="No">N</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button id="generateRiskNote">Generate</button>
-                <button id="copyRiskNote" class="secondary">Copy</button>
-            </div>
-
-            <div id="riskNoteOutput" class="risk-output" aria-live="polite" contenteditable="true"></div>
-        </section>
-
-        <section class="card" id="soap-card" aria-labelledby="soap-heading">
-            <h2 id="soap-heading">SOAP Note</h2>
-
-            <label for="soapSubject">S – Subjective / Issue description</label>
-            <textarea id="soapSubject" placeholder="SUMMARY — What is the customer experiencing?"></textarea>
-
-            <!-- Objective: free-text box for "What is the goal? What are we going to do?" -->
-            <h3 class="subtle">O – Objective / Environment</h3>
-            <textarea id="soapObjective" placeholder="OBJECTIVE — What is the goal? What are we going to do?"></textarea>
-            <div class="form-grid">
-                 <div>
-                     <label for="soapSubscriptionId">Subscription ID</label>
-                     <input id="soapSubscriptionId" type="text" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-                 </div>
-                 <div>
-                     <label for="soapResourceId">Affected Resource ID</label>
-                     <input id="soapResourceId" type="text" placeholder="e.g., /subscriptions/.../resourceGroups/..." />
-                 </div>
-                 <div>
-                     <label for="soapTimeframe">Timeframe of observation</label>
-                     <input id="soapTimeframe" type="text" class="date-like" placeholder="Select date & time" />
-                     <small class="muted">Select date & hour:minute</small>
-                 </div>
-                 <div>
-                     <label for="soapIsFqr">Is FQR sent</label>
-                     <select id="soapIsFqr">
-                        <option value="">--select--</option>
-                        <option value="Y">Y</option>
-                        <option value="N">N</option>
-                        <option value="N/A">N/A</option>
-                     </select>
-                 </div>
-                 <div>
-                     <label for="soapPossibleFdr">Possible FDR</label>
-                     <select id="soapPossibleFdr">
-                        <option value="">--select--</option>
-                        <option value="Y">Y</option>
-                        <option value="N">N</option>
-                        <option value="N/A">N/A</option>
-                     </select>
-                 </div>
-                 <div>
-                     <label for="soapFdrExplain">If FDR not met / explanation</label>
-                     <input id="soapFdrExplain" type="text" placeholder="e.g., Customer unavailable to confirm FDR" />
-                 </div>
-                 <div>
-                     <label for="soapAscViewed">Has ASC been viewed/used</label>
-                     <select id="soapAscViewed">
-                        <option value="">--select--</option>
-                        <option value="Y">Y</option>
-                        <option value="N">N</option>
-                        <option value="N/A">N/A</option>
-                     </select>
-                 </div>
-                 <div>
-                     <label for="soapAscInsights">Any insights generated in ASC</label>
-                     <select id="soapAscInsights">
-                        <option value="">--select--</option>
-                        <option value="Y">Y</option>
-                        <option value="N">N</option>
-                        <option value="N/A">N/A</option>
-                     </select>
-                 </div>
-                 <div style="grid-column: 1 / -1;">
-                     <label for="soapAscDetails">ASC insights (if any)</label>
-                     <textarea id="soapAscDetails" placeholder="Paste ASC insights or short summary"></textarea>
-                 </div>
-            </div>
-
-            <h3 class="subtle">A – Analysis</h3>
-            <label for="soapAssessment">Analysis / Findings</label>
-            <textarea id="soapAssessment" placeholder="ANALYSIS — What did we do? Verbose notes + env data + screenshots"></textarea>
-
-            <h3 class="subtle">P – Plan</h3>
-            <label for="soapPlan">Outline action plan</label>
-            <textarea id="soapPlan" placeholder="PLAN — Next customer action"></textarea>
-
-            <div class="actions">
-                <button id="generateSOAPNote">Generate</button>
-                <button id="copySOAPNote" class="secondary">Copy</button>
-            </div>
-            <div id="soapOutput" class="output soap-output" aria-live="polite" contenteditable="true"></div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <small class="muted">Credit: Robert Van</small>
-    </footer>
-
-    <!-- scripts: jQuery / Popper / Bootstrap (order matters) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
-
-    <!-- Flatpickr -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-
-    <!-- main app script (keeps your functions alive) -->
-    <script src="script.js" defer></script>
+  <!-- Flatpickr -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <!-- App logic -->
+  <script src="script.js" defer></script>
 </body>
 </html>
