@@ -78,18 +78,22 @@
     @apply mb-1.5 block text-sm font-semibold text-brand-900;
   }
   .field {
-    @apply w-full rounded-xl border-2 border-slate-900/10 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15;
+    @apply w-full rounded-xl border-2 border-slate-900/10 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 hover:border-brand-500/30 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15;
   }
   textarea.field {
     @apply min-h-28 leading-relaxed;
     resize: vertical;
   }
   select.field {
-    @apply cursor-pointer appearance-none bg-no-repeat pr-11;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%231a3a5c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    @apply cursor-pointer bg-no-repeat pr-11;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232b8cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-position: right 14px center;
     background-size: 12px 8px;
   }
+  select.field::-ms-expand { display: none; }
   input.date-like {
     @apply cursor-pointer appearance-none bg-no-repeat pr-12;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231a3a5c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect><line x1='16' y1='2' x2='16' y2='6'></line><line x1='8' y1='2' x2='8' y2='6'></line><line x1='3' y1='10' x2='21' y2='10'></line></svg>");
@@ -148,7 +152,78 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .circle:hover { @apply border-brand-500/40; }
+
+  /* ── Custom select (replaces native <select> dropdown) ── */
+  .custom-select {
+    position: relative;
+    display: block;
+  }
+  .custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+  }
+  .custom-select-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cs-ph { color: #94a3b8; }
+  .custom-select-chevron {
+    flex-shrink: 0;
+    color: var(--color-brand-500);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .custom-select.open .custom-select-chevron { transform: rotate(180deg); }
 }
+
+/* ── Custom select dropdown panel (body-anchored, escapes card overflow) ── */
+.cs-panel {
+  position: fixed;
+  z-index: 400;
+  padding: 6px;
+  background: #fff;
+  border: 1.5px solid rgba(43, 140, 255, 0.2);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(12, 24, 40, 0.14), 0 2px 8px rgba(12, 24, 40, 0.06);
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top center;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.15s;
+}
+.cs-panel.open {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.cs-option {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  text-align: left;
+  color: #334155;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.cs-option:hover,
+.cs-option:focus { background: rgba(43, 140, 255, 0.08); color: var(--color-brand-700); outline: none; }
+.cs-option.sel { background: rgba(43, 140, 255, 0.12); color: var(--color-brand-600); font-weight: 600; }
+.cs-option[data-v=""] { color: #94a3b8; font-style: italic; }
 
 /* Hide the actual radio inputs; style their labels instead */
 input.yn-radio { position: absolute; opacity: 0; pointer-events: none; }
@@ -167,6 +242,7 @@ input.yn-radio[value="N"]:checked + label.circle {
 }
 
 /* Highlight a whole risk row when flagged "Y" */
+#riskTable > div { width: 100%; }
 .risk-row {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
