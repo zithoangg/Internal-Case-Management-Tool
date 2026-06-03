@@ -567,6 +567,64 @@ const WIRING = [
   { ids: SOAP_IDS, render: renderSoap },
 ];
 
+/* ════════════════════════════════════════════════════════════════
+   Pill nav — scroll spy + sliding indicator + smooth scroll
+   ════════════════════════════════════════════════════════════════ */
+function initScrollSpy() {
+  const sectionIds = ["sec-title", "sec-case", "sec-risk", "sec-soap"];
+  const pills = document.querySelectorAll(".sticky-nav-pill[data-nav]");
+  const indicator = document.querySelector(".sticky-nav-indicator");
+  if (!pills.length) return;
+
+  const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+  if (!sections.length) return;
+
+  /* Move the sliding indicator under the given pill, optionally skipping animation. */
+  function positionIndicator(pill, instant) {
+    if (!indicator || !pill) return;
+    if (instant) indicator.style.transitionDuration = "0ms";
+    indicator.style.width = `${pill.offsetWidth}px`;
+    indicator.style.transform = `translateX(${pill.offsetLeft}px)`;
+    if (instant) requestAnimationFrame(() => { indicator.style.transitionDuration = ""; });
+  }
+
+  function setActive(id) {
+    let activePill = null;
+    pills.forEach((p) => {
+      const on = p.dataset.nav === id;
+      p.classList.toggle("active", on);
+      if (on) activePill = p;
+    });
+    positionIndicator(activePill, false);
+  }
+
+  function updateActive() {
+    let activeId = sectionIds[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= 110) activeId = s.id;
+    }
+    setActive(activeId);
+  }
+
+  window.addEventListener("scroll", updateActive, { passive: true });
+  window.addEventListener("resize", updateActive, { passive: true });
+
+  /* Initial placement — instant, no slide animation on load */
+  updateActive();
+  const initPill = document.querySelector(".sticky-nav-pill.active");
+  positionIndicator(initPill, true);
+
+  /* Click: smooth scroll to section */
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  pills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const target = document.getElementById(pill.dataset.nav);
+      if (!target) return;
+      target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    });
+  });
+}
+
 function init() {
   // 1. Build DOM from data
   fillSelect("serviceLevel", SERVICE_LEVELS);
@@ -634,6 +692,9 @@ function init() {
 
   // 7. Initial render from restored/empty state
   renderTitle(); renderCase(); renderRisk(); renderSoap();
+
+  // 8. Sidebar navigation scroll spy
+  initScrollSpy();
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
