@@ -172,7 +172,7 @@ function buildSoapNote() {
 function buildRiskNote() {
   const cell = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;vertical-align:top;";
   const th = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;";
-  let html = `<table style="border-collapse:collapse;font-family:Segoe UI,Arial,sans-serif;font-size:13px;color:#1a1a1a;">`;
+  let html = `<table style="border-collapse:collapse;width:100%;font-family:Segoe UI,Arial,sans-serif;font-size:13px;color:#1a1a1a;">`;
   html += `<thead><tr><th style="${th}">No.</th><th style="${th}">Risk</th><th style="${th}">Description</th><th style="${th}">Y/N</th></tr></thead><tbody>`;
   let plain = "";
   RISKS.forEach((r, i) => {
@@ -307,16 +307,19 @@ function fillSelect(id, options) {
 function renderRiskRows() {
   const wrap = el("riskTable");
   if (!wrap) return;
-  const cols = "grid grid-cols-[2rem_minmax(8rem,1fr)_minmax(12rem,2fr)_auto] items-center gap-3";
+  // Single flexible content column (name + description stacked) so text never gets crushed.
+  const cols = "grid grid-cols-[2rem_1fr_auto] items-center gap-3";
   let html = `<div class="${cols} px-4 pb-1 text-xs font-bold uppercase tracking-wide text-slate-400">
-    <div class="text-center">No.</div><div>Risk</div><div>Description</div><div class="pr-1 text-right">Y / N</div>
+    <div class="text-center">No.</div><div>Risk</div><div class="text-right">Y / N</div>
   </div>`;
   RISKS.forEach((r, i) => {
     const n = i + 1;
     html += `<div class="risk-row ${cols} rounded-xl border border-slate-900/5 bg-white/70 px-4 py-3" role="listitem">
-      <div class="text-center text-sm font-extrabold text-brand-500">${n}</div>
-      <div class="min-w-0 text-sm font-bold text-brand-900">${escapeHtml(r.name)}</div>
-      <div class="min-w-0 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
+      <div class="self-start pt-0.5 text-center text-sm font-extrabold text-brand-500">${n}</div>
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-brand-900">${escapeHtml(r.name)}</div>
+        <div class="mt-0.5 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
+      </div>
       <div class="flex items-center justify-end gap-2">
         <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y">
         <label for="risk${n}_y" class="circle" title="Yes">Y</label>
@@ -328,13 +331,161 @@ function renderRiskRows() {
   wrap.innerHTML = html;
 }
 
+/* ── Custom select (replaces native <select> OS dropdown) ── */
+function initCustomSelects() {
+  const NS = "http://www.w3.org/2000/svg";
+  document.querySelectorAll("select.field").forEach((sel) => {
+    /* wrapper stays in the DOM flow; panel is body-anchored */
+    const wrap = document.createElement("div");
+    wrap.className = "custom-select";
+    sel.insertAdjacentElement("beforebegin", wrap);
+    wrap.appendChild(sel);
+    sel.style.cssText = "position:absolute;opacity:0;pointer-events:none;height:0;width:0;overflow:hidden;";
+
+    /* trigger button — gets .field base styles */
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "field custom-select-trigger";
+    btn.setAttribute("aria-haspopup", "listbox");
+    btn.setAttribute("aria-expanded", "false");
+
+    const txt = document.createElement("span");
+    txt.className = "custom-select-text";
+
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "custom-select-chevron");
+    svg.setAttribute("width", "12");
+    svg.setAttribute("height", "8");
+    svg.setAttribute("viewBox", "0 0 12 8");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("aria-hidden", "true");
+    const chevPath = document.createElementNS(NS, "path");
+    chevPath.setAttribute("d", "M1 1l5 5 5-5");
+    chevPath.setAttribute("stroke", "currentColor");
+    chevPath.setAttribute("stroke-width", "2");
+    chevPath.setAttribute("stroke-linecap", "round");
+    chevPath.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(chevPath);
+    btn.appendChild(txt);
+    btn.appendChild(svg);
+    wrap.insertBefore(btn, sel);
+
+    /* panel appended to body so card overflow:hidden + backdrop-filter don't clip it */
+    const panel = document.createElement("div");
+    panel.className = "cs-panel";
+    panel.setAttribute("role", "listbox");
+    document.body.appendChild(panel);
+
+    /* reflect the real <select>'s current value in the custom UI */
+    function syncUI() {
+      const opt = sel.options[sel.selectedIndex];
+      txt.textContent = opt ? opt.text : "";
+      txt.classList.toggle("cs-ph", !sel.value);
+      panel.querySelectorAll(".cs-option").forEach((o) => {
+        const on = o.dataset.v === sel.value;
+        o.classList.toggle("sel", on);
+        o.setAttribute("aria-selected", String(on));
+      });
+    }
+
+    Array.from(sel.options).forEach((o) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "cs-option";
+      item.setAttribute("role", "option");
+      item.dataset.v = o.value;
+      item.textContent = o.text;
+      panel.appendChild(item);
+    });
+    syncUI();
+
+    /* position panel under (or above) the trigger */
+    function posPanel() {
+      const r = btn.getBoundingClientRect();
+      panel.style.width = `${r.width}px`;
+      panel.style.left = `${r.left}px`;
+      const h = panel.offsetHeight || 220;
+      panel.style.top = (h > window.innerHeight - r.bottom - 8 && r.top > h + 8)
+        ? `${r.top - h - 6}px`
+        : `${r.bottom + 6}px`;
+    }
+
+    function closePanel() {
+      wrap.classList.remove("open");
+      panel.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+    function openPanel() {
+      /* close any other open custom select first */
+      document.querySelectorAll(".cs-panel.open").forEach((x) => x.classList.remove("open"));
+      document.querySelectorAll(".custom-select.open").forEach((x) => {
+        x.classList.remove("open");
+        x.querySelector(".custom-select-trigger")?.setAttribute("aria-expanded", "false");
+      });
+      wrap.classList.add("open");
+      panel.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+      posPanel();
+    }
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      wrap.classList.contains("open") ? closePanel() : openPanel();
+    });
+    panel.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const item = e.target.closest(".cs-option");
+      if (!item) return;
+      sel.value = item.dataset.v;
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+      syncUI();
+      closePanel();
+      btn.focus();
+    });
+    document.addEventListener("click", closePanel);
+
+    btn.addEventListener("keydown", (e) => {
+      if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+        e.preventDefault();
+        openPanel();
+        (panel.querySelector(".cs-option.sel") || panel.querySelector(".cs-option"))?.focus();
+      } else if (e.key === "Escape") closePanel();
+    });
+    panel.addEventListener("keydown", (e) => {
+      const items = [...panel.querySelectorAll(".cs-option")];
+      const i = items.indexOf(document.activeElement);
+      const moves = { ArrowDown: Math.min(i + 1, items.length - 1), ArrowUp: Math.max(i - 1, 0), Home: 0, End: items.length - 1 };
+      if (e.key in moves) { e.preventDefault(); items[moves[e.key]]?.focus(); }
+      else if (e.key === "Escape") { closePanel(); btn.focus(); }
+    });
+    wrap.addEventListener("focusout", (e) => {
+      if (!wrap.contains(e.relatedTarget) && !panel.contains(e.relatedTarget)) closePanel();
+    });
+    const repos = () => { if (wrap.classList.contains("open")) posPanel(); };
+    window.addEventListener("resize", repos);
+    window.addEventListener("scroll", repos, true);
+
+    sel.addEventListener("change", syncUI);
+
+    /* redirect label → our button so clicking the label focuses the right element */
+    if (sel.id) {
+      const lbl = document.querySelector(`label[for="${sel.id}"]`);
+      if (lbl) lbl.setAttribute("for", (btn.id = `${sel.id}--btn`));
+      const ariaLbl = sel.getAttribute("aria-label");
+      if (ariaLbl) btn.setAttribute("aria-label", ariaLbl);
+    }
+  });
+}
+
 /* ── Clear helpers ── */
 function clearFields(ids, render, outId) {
   ids.forEach((id) => {
     const e = el(id);
     if (!e) return;
-    if (e.tagName === "SELECT") e.selectedIndex = 0;
-    else e.value = "";
+    if (e.tagName === "SELECT") {
+      e.selectedIndex = 0;
+      e.dispatchEvent(new Event("change", { bubbles: true })); // keep custom-select UI in sync
+    } else e.value = "";
   });
   if (outId) { const o = el(outId); if (o) o.innerHTML = ""; }
   render && render();
@@ -644,6 +795,7 @@ function init() {
   applyState(loadState());
   hydratePickers();
   wireValidation();
+  initCustomSelects();
 
   // 4. Live preview + autosave wiring
   WIRING.forEach(({ ids, render }) => {
