@@ -10,5 +10,8 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.0",
     "tailwindcss": "^4.1.0"
+  },
+  "dependencies": {
+    "air-datepicker": "^3.6.0"
   }
 }

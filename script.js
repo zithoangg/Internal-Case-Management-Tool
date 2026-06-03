@@ -1,6 +1,12 @@
 /* ════════════════════════════════════════════════════════════════
    Internal Case Management — frontend logic (vanilla JS)
+
+   Dates  → Air Datepicker (self-hosted UMD → window.AirDatepicker;
+            see vendor/). Replaces Flatpickr.
+   Time   → plain Hour / Minute <select>s (precise + keyboard friendly).
+   The SOAP date + time are combined into the hidden #soapTimeframe.
    ════════════════════════════════════════════════════════════════ */
+const AirDatepicker = window.AirDatepicker;
 
 /* ── Single source of truth ───────────────────────────────────── */
 const RISKS = [
@@ -20,16 +26,36 @@ const RISKS = [
 
 const SERVICE_LEVELS = ["BC", "Unified"];
 const PCY_OPTIONS = [
-  "AppService_Config", "AppService_Dev", "AppService_Perf",
+  "AppService_Config", "AppService_Dev", "AppService_Perf", "AppService_OSS",
   "Developer_Developer", "Developer_Storage", "Developer_ServiceBus",
   "WebApps", "Browsers", "DevOps",
 ];
 
 const STORE_KEY = "icm-tool-v2";
+const DATE_FMT = "yyyy-MM-dd";
+
+/* Minimal English locale so Air Datepicker renders without a separate import. */
+const EN_LOCALE = {
+  days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+  months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  today: "Today",
+  clear: "Clear",
+  dateFormat: DATE_FMT,
+  timeFormat: "HH:mm",
+  firstDay: 0,
+};
+
+/* Picker instances (set up in init). */
+let nextContactDp = null;
+let soapDateDp = null;
 
 /* ── Tiny helpers ─────────────────────────────────────────────── */
 function el(id) { return document.getElementById(id); }
 function val(id) { return (el(id)?.value || "").trim(); }
+const pad2 = (n) => String(n).padStart(2, "0");
 
 function escapeHtml(str) {
   if (str == null) return "";
@@ -51,6 +77,19 @@ function stripHtml(html) {
 function formatDateTimeLocal(v) {
   if (!v) return "";
   return v.includes("T") ? v.replace("T", " ") : v;
+}
+
+/* "yyyy-MM-dd" or "yyyy-MM-dd HH:mm" → local Date (for hydrating the calendars). */
+function parseDateTime(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec((s || "").trim());
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] || 0), Number(m[5] || 0));
+}
+
+/* Local Date → "yyyy-MM-dd HH:mm". */
+function fmtDateTime(date) {
+  if (!date) return "";
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
 /* ── Note building blocks (inline styles → survive paste into Outlook/ICM/Teams) ── */
@@ -304,7 +343,6 @@ function clearFields(ids, render, outId) {
   ids.forEach((id) => {
     const e = el(id);
     if (!e) return;
-    if (e._flatpickr) e._flatpickr.clear();
     if (e.tagName === "SELECT") e.selectedIndex = 0;
     else e.value = "";
   });
@@ -314,119 +352,95 @@ function clearFields(ids, render, outId) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SOAP date + custom time picker
-   (visible: #soapDate calendar + #soapTimeBtn popover →
-    combined into the hidden #soapTimeframe "Y-m-d H:i" value)
+   SOAP timeframe
+   (one Air Datepicker carrying date + 24-hour time in a single popup →
+    stored in the hidden #soapTimeframe as "yyyy-MM-dd HH:mm")
    ════════════════════════════════════════════════════════════════ */
-const timeState = { h: null, m: null };
-let soapDateFp = null;
-
-const pad2 = (n) => String(n).padStart(2, "0");
-
-function updateTimeLabel() {
-  const lbl = el("soapTimeLabel");
-  if (!lbl) return;
-  const set = timeState.h != null && timeState.m != null;
-  lbl.textContent = set ? `${timeState.h}:${timeState.m}` : "Select time";
-  lbl.classList.toggle("text-slate-400", !set);
-  lbl.classList.toggle("text-slate-900", set);
-}
-
-function syncSoapTimeframe() {
-  const d = val("soapDate");
-  const t = timeState.h != null && timeState.m != null ? `${timeState.h}:${timeState.m}` : "";
-  const combined = d ? (t ? `${d} ${t}` : d) : t;
+function setSoapTimeframe(date) {
   const hidden = el("soapTimeframe");
   if (!hidden) return;
-  hidden.value = combined;
+  hidden.value = fmtDateTime(date);
   hidden.dispatchEvent(new Event("input", { bubbles: true })); // → renderSoap + autosave (wired)
 }
 
-function buildTimePanel() {
-  const panel = el("soapTimePanel");
-  if (!panel) return;
-  const hours = Array.from({ length: 24 }, (_, i) => pad2(i));
-  const mins = Array.from({ length: 12 }, (_, i) => pad2(i * 5));
-  const col = (title, items, kind) =>
-    `<div><div class="time-col-title">${title}</div><div class="time-col" data-kind="${kind}">` +
-    items.map((v) => `<button type="button" class="time-item" data-kind="${kind}" data-val="${v}">${v}</button>`).join("") +
-    `</div></div>`;
-  panel.innerHTML = col("Hour", hours, "h") + col("Min", mins, "m");
-}
+/* Restore the calendars from saved values after applyState(). */
+function hydratePickers() {
+  const ncd = val("nextContactDate");
+  if (ncd && nextContactDp) { const d = parseDateTime(ncd); if (d) nextContactDp.selectDate(d, { silent: true }); }
 
-function renderTimeSelections() {
-  el("soapTimePanel")?.querySelectorAll(".time-item").forEach((b) => {
-    const sel =
-      (b.dataset.kind === "h" && b.dataset.val === timeState.h) ||
-      (b.dataset.kind === "m" && b.dataset.val === timeState.m);
-    b.classList.toggle("sel", sel);
-  });
-}
-
-function scrollTimeIntoView() {
-  el("soapTimePanel")?.querySelectorAll(".time-item.sel").forEach((b) => {
-    b.scrollIntoView({ block: "center" });
-  });
-}
-
-function hydrateSoapDateTime() {
   const combined = val("soapTimeframe");
-  if (combined) {
-    const [datePart, timePart] = combined.split(" ");
-    if (datePart) {
-      if (soapDateFp) soapDateFp.setDate(datePart, false);
-      else el("soapDate").value = datePart;
-    }
-    if (timePart) {
-      const [h, m] = timePart.split(":");
-      timeState.h = h;
-      timeState.m = m;
-    }
-  }
-  updateTimeLabel();
-  renderTimeSelections();
+  if (combined && soapDateDp) { const d = parseDateTime(combined); if (d) soapDateDp.selectDate(d, { silent: true }); }
 }
 
-function setupTimePicker() {
-  buildTimePanel();
-  const btn = el("soapTimeBtn");
-  const panel = el("soapTimePanel");
-  if (!btn || !panel) return;
+function setupPickers() {
+  if (!AirDatepicker) {
+    // Self-hosted picker failed to load → let users type into the fields instead of being stuck.
+    ["nextContactDate", "soapDate"].forEach((id) => el(id)?.removeAttribute("readonly"));
+    el("nextContactDate")?.addEventListener("input", () => { renderTitle(); scheduleSave(); });
+    el("soapDate")?.addEventListener("input", () => {
+      const hidden = el("soapTimeframe");
+      if (hidden) { hidden.value = val("soapDate"); hidden.dispatchEvent(new Event("input", { bubbles: true })); }
+    });
+    return;
+  }
 
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = panel.classList.toggle("open");
-    btn.setAttribute("aria-expanded", String(open));
-    if (open) { renderTimeSelections(); scrollTimeIntoView(); }
+  nextContactDp = new AirDatepicker(el("nextContactDate"), {
+    locale: EN_LOCALE,
+    dateFormat: DATE_FMT,
+    autoClose: true,
+    onSelect: () => { renderTitle(); scheduleSave(); },
   });
 
-  panel.addEventListener("click", (e) => {
-    const item = e.target.closest(".time-item");
-    if (!item) return;
-    if (item.dataset.kind === "h") timeState.h = item.dataset.val;
-    else timeState.m = item.dataset.val;
-    // sensible default for the other column once one is picked
-    if (timeState.h != null && timeState.m == null) timeState.m = "00";
-    if (timeState.m != null && timeState.h == null) timeState.h = "00";
-    renderTimeSelections();
-    updateTimeLabel();
-    syncSoapTimeframe();
-  });
-
-  // close on outside click / Escape
-  document.addEventListener("click", (e) => {
-    if (!panel.contains(e.target) && !btn.contains(e.target)) {
-      panel.classList.remove("open");
-      btn.setAttribute("aria-expanded", "false");
-    }
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { panel.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); }
+  // Date + 24-hour time in one popup; 5-minute steps keep the slider easy to land.
+  soapDateDp = new AirDatepicker(el("soapDate"), {
+    locale: EN_LOCALE,
+    dateFormat: DATE_FMT,
+    timepicker: true,
+    timeFormat: "HH:mm",
+    minutesStep: 5,
+    autoClose: false, // stay open so the time can be set after the day
+    onSelect: ({ date }) => setSoapTimeframe(Array.isArray(date) ? date[0] : date),
   });
 }
 
 /* ════════════════════════════════════════════════════════════════
-   Wiring
+   Lightweight field validation (Azure IDs) — empty = neutral, not an error
+   ════════════════════════════════════════════════════════════════ */
+const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const VALIDATORS = {
+  guid: {
+    test: (v) => GUID_RE.test(v),
+    msg: "Expected a GUID — xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  },
+  resourceId: {
+    test: (v) => /^\/subscriptions\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\/.*)?$/i.test(v),
+    msg: "Should start with /subscriptions/<GUID>/…",
+  },
+};
+
+function validateField(input) {
+  const rule = VALIDATORS[input.dataset.validate];
+  if (!rule) return true;
+  const v = input.value.trim();
+  const ok = !v || rule.test(v);
+  input.classList.toggle("field--invalid", !ok);
+  input.classList.toggle("field--valid", !!v && ok);
+  const hint = el(`${input.id}-hint`);
+  if (hint) hint.textContent = ok ? "" : rule.msg;
+  return ok;
+}
+
+function wireValidation() {
+  document.querySelectorAll("[data-validate]").forEach((input) => {
+    const run = () => validateField(input);
+    input.addEventListener("input", run);
+    input.addEventListener("blur", run);
+    run(); // validate any restored value on load
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Wiring + bootstrap
    ════════════════════════════════════════════════════════════════ */
 const WIRING = [
   { ids: TITLE_IDS, render: renderTitle },
@@ -434,28 +448,19 @@ const WIRING = [
   { ids: SOAP_IDS, render: renderSoap },
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
   // 1. Build DOM from data
   fillSelect("serviceLevel", SERVICE_LEVELS);
   fillSelect("pcy", PCY_OPTIONS);
   renderRiskRows();
 
-  // 2. Restore saved state
-  applyState(loadState());
+  // 2. Date pickers (Air Datepicker)
+  setupPickers();
 
-  // 3. Flatpickr pickers
-  if (typeof flatpickr === "function") {
-    flatpickr("#nextContactDate", {
-      dateFormat: "Y-m-d", allowInput: true, animate: false,
-      onChange: () => { renderTitle(); scheduleSave(); },
-    });
-    soapDateFp = flatpickr("#soapDate", {
-      dateFormat: "Y-m-d", allowInput: true, animate: false,
-      onChange: () => syncSoapTimeframe(),
-    });
-  }
-  setupTimePicker();
-  hydrateSoapDateTime();
+  // 3. Restore saved state, then hydrate the pickers from it
+  applyState(loadState());
+  hydratePickers();
+  wireValidation();
 
   // 4. Live preview + autosave wiring
   WIRING.forEach(({ ids, render }) => {
@@ -470,7 +475,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 5. Copy buttons (one-click: copies the live preview, including any manual edits)
   el("copyTitle")?.addEventListener("click", () => {
-    const text = (el("titleOutput")?.textContent || "").trim() || buildTitle();
+    // Show the generated title in the preview box so what's copied is also visible.
+    renderTitle();
+    const out = el("titleOutput");
+    let text = (out?.textContent || "").trim();
+    if (!text) { text = buildTitle(); if (out) out.textContent = text; }
     copyPlain(text);
   });
   const copyBox = (outId, build) => {
@@ -484,13 +493,15 @@ document.addEventListener("DOMContentLoaded", () => {
   el("copySOAPNote")?.addEventListener("click", () => copyBox("soapOutput", buildSoapNote));
 
   // 6. Clear buttons
-  el("clearTitle")?.addEventListener("click", () => clearFields(TITLE_IDS, renderTitle, "titleOutput"));
+  el("clearTitle")?.addEventListener("click", () => {
+    clearFields(TITLE_IDS, renderTitle, "titleOutput");
+    nextContactDp?.clear();
+  });
   el("clearCase")?.addEventListener("click", () => clearFields(CASE_IDS, renderCase, "caseNoteOutput"));
   el("clearSoap")?.addEventListener("click", () => {
     clearFields(SOAP_IDS, renderSoap, "soapOutput");
-    if (soapDateFp) soapDateFp.clear(); else el("soapDate").value = "";
-    timeState.h = null; timeState.m = null;
-    updateTimeLabel(); renderTimeSelections();
+    if (soapDateDp) soapDateDp.clear(); else if (el("soapDate")) el("soapDate").value = "";
+    document.querySelectorAll("[data-validate]").forEach(validateField);
   });
   el("clearRisk")?.addEventListener("click", () => {
     RISKS.forEach((_, i) => { const n = document.querySelector(`input[name="risk${i + 1}"][value="N"]`); if (n) n.checked = true; });
@@ -500,4 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 7. Initial render from restored/empty state
   renderTitle(); renderCase(); renderRisk(); renderSoap();
-});
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();

@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 
-  <!-- Flatpickr (the only third-party widget we actually use) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <!-- Date picker (Air Datepicker — self-hosted so it works on CDN-blocked networks) -->
+  <link rel="stylesheet" href="vendor/air-datepicker.css">
 
   <!-- Compiled Tailwind + custom theme -->
   <link rel="stylesheet" href="app.css">
@@ -28,9 +28,6 @@
       <h1 class="relative text-2xl font-extrabold tracking-tight text-white drop-shadow sm:text-3xl">
         Internal Case Management
       </h1>
-      <p class="relative mt-1 text-sm font-medium text-white/80">
-        Generate Title, Case, Risk &amp; SOAP notes — copy-ready. Autosaves as you type.
-      </p>
     </div>
   </header>
 
@@ -44,7 +41,7 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="label" for="nextContactDate">Next contact date</label>
-          <input id="nextContactDate" type="text" class="field date-like" placeholder="Select date" autocomplete="off" />
+          <input id="nextContactDate" type="text" class="field date-like" placeholder="Select date" autocomplete="off" readonly />
         </div>
         <div>
           <label class="label" for="serviceLevel">Service level</label>
@@ -115,7 +112,7 @@
 
       <div class="mt-5 flex flex-wrap gap-3">
         <button id="copyRiskNote" class="btn btn-primary">Copy</button>
-        <button id="clearRisk" class="btn btn-ghost">Reset to N</button>
+        <button id="clearRisk" class="btn btn-ghost">Clear</button>
       </div>
       <div id="riskNoteOutput" class="output-box overflow-x-auto" aria-live="polite" data-placeholder="Generated risk note appears here…" contenteditable="true"></div>
     </section>
@@ -124,7 +121,7 @@
     <section class="card" aria-labelledby="soap-heading">
       <h2 id="soap-heading" class="section-title">SOAP Note</h2>
 
-      <label class="label" for="soapSubject">S – Subjective / Issue description</label>
+      <h3 class="sub-title">S – Subjective / Issue Description</h3>
       <textarea id="soapSubject" class="field" placeholder="SUMMARY — What is the customer experiencing?"></textarea>
 
       <h3 class="sub-title">O – Objective / Environment</h3>
@@ -133,26 +130,19 @@
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="label" for="soapSubscriptionId">Subscription ID</label>
-          <input id="soapSubscriptionId" type="text" class="field" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          <input id="soapSubscriptionId" type="text" class="field" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" data-validate="guid" />
+          <small id="soapSubscriptionId-hint" class="field-hint" aria-live="polite"></small>
         </div>
         <div>
           <label class="label" for="soapResourceId">Affected Resource ID</label>
-          <input id="soapResourceId" type="text" class="field" placeholder="e.g., /subscriptions/.../resourceGroups/..." />
+          <input id="soapResourceId" type="text" class="field" placeholder="e.g., /subscriptions/.../resourceGroups/..." data-validate="resourceId" />
+          <small id="soapResourceId-hint" class="field-hint" aria-live="polite"></small>
         </div>
         <div class="sm:col-span-2">
-          <label class="label">Timeframe of observation</label>
-          <div class="grid grid-cols-2 gap-3">
-            <input id="soapDate" type="text" class="field date-like js-nostore" placeholder="Select date" autocomplete="off" />
-            <div class="relative">
-              <button type="button" id="soapTimeBtn" class="field flex w-full items-center justify-between gap-2 text-left" aria-haspopup="dialog" aria-expanded="false">
-                <span id="soapTimeLabel" class="text-slate-400">Select time</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a5c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-              </button>
-              <div id="soapTimePanel" class="time-panel" role="dialog" aria-label="Select time"></div>
-            </div>
-          </div>
+          <label class="label" for="soapDate">Timeframe of observation</label>
+          <input id="soapDate" type="text" class="field date-like js-nostore" placeholder="Select date &amp; time" autocomplete="off" readonly />
           <input id="soapTimeframe" type="hidden" />
-          <small class="mt-1 block text-xs text-slate-500">Pick date &amp; 24-hour time</small>
+          <small class="mt-1 block text-xs text-slate-500">Pick date &amp; 24-hour time in one popup</small>
         </div>
         <div>
           <label class="label" for="soapIsFqr">Is FQR sent</label>
@@ -223,8 +213,8 @@
   <!-- Toast container -->
   <div id="toasts" class="pointer-events-none fixed bottom-5 right-5 z-[100000] flex flex-col items-end gap-2"></div>
 
-  <!-- Flatpickr -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <!-- Self-hosted date picker (UMD → window.AirDatepicker) -->
+  <script src="vendor/air-datepicker.js"></script>
   <!-- App logic -->
   <script src="script.js" defer></script>
 </body>
