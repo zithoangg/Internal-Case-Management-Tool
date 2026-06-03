@@ -598,7 +598,10 @@ function initScrollSpy() {
     positionIndicator(activePill, false);
   }
 
+  let scrollLockId = null;
+
   function updateActive() {
+    if (scrollLockId !== null) return; // suppress during programmatic scroll
     let activeId = sectionIds[0];
     for (const s of sections) {
       if (s.getBoundingClientRect().top <= 110) activeId = s.id;
@@ -614,12 +617,18 @@ function initScrollSpy() {
   const initPill = document.querySelector(".sticky-nav-pill.active");
   positionIndicator(initPill, true);
 
-  /* Click: smooth scroll to section */
+  /* Click: snap indicator to destination immediately, then smooth-scroll */
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   pills.forEach((pill) => {
     pill.addEventListener("click", () => {
       const target = document.getElementById(pill.dataset.nav);
       if (!target) return;
+      // Move indicator straight to the clicked pill — no intermediate stops
+      setActive(pill.dataset.nav);
+      // Lock scroll spy for the duration of the smooth scroll so it can't
+      // overwrite the indicator as intermediate sections cross the threshold
+      clearTimeout(scrollLockId);
+      scrollLockId = setTimeout(() => { scrollLockId = null; }, 800);
       target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
     });
   });
