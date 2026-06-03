@@ -1,10 +1,11 @@
 /* ════════════════════════════════════════════════════════════════
    Internal Case Management — frontend logic (vanilla JS)
 
-   Dates  → Air Datepicker (self-hosted UMD → window.AirDatepicker;
-            see vendor/). Replaces Flatpickr.
-   Time   → plain Hour / Minute <select>s (precise + keyboard friendly).
-   The SOAP date + time are combined into the hidden #soapTimeframe.
+   Dates → Air Datepicker (self-hosted UMD → window.AirDatepicker;
+           see vendor/). Replaces Flatpickr.
+   SOAP timeframe → one popover with an inline calendar + a scrollable
+           time list (Google Calendar / Calendly style), combined into
+           the hidden #soapTimeframe as "yyyy-MM-dd HH:mm".
    ════════════════════════════════════════════════════════════════ */
 const AirDatepicker = window.AirDatepicker;
 
@@ -75,11 +76,6 @@ function stripHtml(html) {
   return (div.textContent || div.innerText || "").trim();
 }
 
-function formatDateTimeLocal(v) {
-  if (!v) return "";
-  return v.includes("T") ? v.replace("T", " ") : v;
-}
-
 /* "yyyy-MM-dd" or "yyyy-MM-dd HH:mm" → local Date (for hydrating the calendars). */
 function parseDateTime(s) {
   const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec((s || "").trim());
@@ -103,7 +99,8 @@ function buildTitle() {
   const pcy = val("pcy");
   const action = val("nextActionTitle");
   const icm = val("icmLinked");
-  let title = `[${sl}] - [${pcy}] - Next contact: ${date} - ${action}`;
+  let title = `[${sl}] - [${pcy}] - Next contact: ${date}`;
+  if (action) title += ` - ${action}`;
   if (icm) title += ` - ICM: ${icm}`;
   return title;
 }
@@ -127,7 +124,7 @@ function buildSoapNote() {
   const objective = val("soapObjective");
   const subId = val("soapSubscriptionId");
   const resId = val("soapResourceId");
-  const timeframe = formatDateTimeLocal(val("soapTimeframe"));
+  const timeframe = val("soapTimeframe");
   const isFqr = val("soapIsFqr");
   const possFdr = val("soapPossibleFdr");
   const fdrExplain = val("soapFdrExplain");
@@ -286,6 +283,7 @@ function applyState(s) {
     if (e && v != null) e.value = v;
   });
   Object.entries(s.risks || {}).forEach(([n, v]) => {
+    if (!/^\d+$/.test(n) || (v !== "Y" && v !== "N")) return; // guard the selector against bad/tampered values
     const r = document.querySelector(`input[name="risk${n}"][value="${v}"]`);
     if (r) r.checked = true;
   });
@@ -360,7 +358,8 @@ function buildSoapTimes() {
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += SOAP_TIME_STEP) {
       const t = `${pad2(h)}:${pad2(m)}`;
-      html += `<button type="button" class="dt-time" role="option" data-time="${t}">${t}</button>`;
+      // tabindex -1: the list is a single tab stop (one item gets 0 on open); arrows move within.
+      html += `<button type="button" class="dt-time" role="option" tabindex="-1" data-time="${t}">${t}</button>`;
     }
   }
   wrap.innerHTML = html;
@@ -383,21 +382,43 @@ function combineSoapDateTime() {
   if (hidden) { hidden.value = combined; hidden.dispatchEvent(new Event("input", { bubbles: true })); }
 }
 
-function openSoapPicker() {
+/* The popover is appended to <body> (so the card's overflow:hidden can't clip it);
+   position it under the field each time it opens / on scroll / on resize. */
+function positionSoapPicker() {
+  const field = el("soapDate"), pop = el("soapDtPopover");
+  if (!field || !pop) return;
+  const r = field.getBoundingClientRect();
+  const w = pop.offsetWidth, h = pop.offsetHeight;
+  let left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8));
+  let top = r.bottom + 6;
+  if (top + h + 8 > window.innerHeight && r.top - h - 6 > 8) top = r.top - h - 6; // flip up if no room below
+  pop.style.left = `${left}px`;
+  pop.style.top = `${top}px`;
+}
+
+function openSoapPicker(focusList) {
   const pop = el("soapDtPopover");
   if (!pop) return;
   pop.classList.add("open");
   el("soapDate")?.setAttribute("aria-expanded", "true");
+  positionSoapPicker();
   const list = el("soapTimes");
-  const target = list?.querySelector(".dt-time.sel") || list?.querySelector('[data-time="08:00"]');
-  target?.scrollIntoView({ block: "center" });
+  const target = list?.querySelector(".dt-time.sel")
+    || list?.querySelector('[data-time="08:00"]')
+    || list?.querySelector(".dt-time");
+  if (target) {
+    list.querySelectorAll(".dt-time").forEach((b) => (b.tabIndex = -1));
+    target.tabIndex = 0;
+    target.scrollIntoView({ block: "center" });
+    if (focusList) target.focus();
+  }
 }
 function closeSoapPicker() {
   el("soapDtPopover")?.classList.remove("open");
   el("soapDate")?.setAttribute("aria-expanded", "false");
 }
-function toggleSoapPicker() {
-  el("soapDtPopover")?.classList.contains("open") ? closeSoapPicker() : openSoapPicker();
+function toggleSoapPicker(focusList) {
+  el("soapDtPopover")?.classList.contains("open") ? closeSoapPicker() : openSoapPicker(focusList);
 }
 
 /* Restore the calendars from saved values after applyState(). */
@@ -439,6 +460,10 @@ function setupPickers() {
     onSelect: () => { renderTitle(); scheduleSave(); },
   });
 
+  // Move the popover to <body> so the card's overflow:hidden can't clip it.
+  const pop = el("soapDtPopover");
+  if (pop) document.body.appendChild(pop);
+
   // Inline calendar + time list, both inside #soapDtPopover.
   buildSoapTimes();
   soapCalDp = new AirDatepicker(el("soapCal"), {
@@ -449,24 +474,52 @@ function setupPickers() {
   });
 
   const field = el("soapDate");
-  field?.addEventListener("click", (e) => { e.stopPropagation(); toggleSoapPicker(); });
+  field?.addEventListener("click", (e) => { e.stopPropagation(); toggleSoapPicker(false); });
+  field?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") { e.preventDefault(); openSoapPicker(true); }
+  });
+
   // Keep in-popover clicks from reaching the outside-click handler below. The calendar
   // re-renders its day cells on select, detaching the clicked node — so a contains()
   // check on the document handler would wrongly treat it as an outside click.
-  el("soapDtPopover")?.addEventListener("click", (e) => e.stopPropagation());
-  el("soapTimes")?.addEventListener("click", (e) => {
+  pop?.addEventListener("click", (e) => e.stopPropagation());
+
+  const times = el("soapTimes");
+  times?.addEventListener("click", (e) => {
     const b = e.target.closest(".dt-time");
     if (!b) return;
     soapTime = b.dataset.time;
     markSoapTime();
     combineSoapDateTime();
-    if (soapCalDp.selectedDates && soapCalDp.selectedDates.length) closeSoapPicker();
+    if (soapCalDp.selectedDates && soapCalDp.selectedDates.length) { closeSoapPicker(); field?.focus(); }
   });
+  // Roving-tabindex keyboard nav within the time list (one tab stop, arrows to move).
+  times?.addEventListener("keydown", (e) => {
+    const items = [...times.querySelectorAll(".dt-time")];
+    let i = items.indexOf(document.activeElement);
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) {
+      e.preventDefault();
+      i = e.key === "ArrowDown" ? Math.min(items.length - 1, i + 1)
+        : e.key === "ArrowUp" ? Math.max(0, i - 1)
+        : e.key === "Home" ? 0 : items.length - 1;
+      const t = items[i];
+      if (t) { items.forEach((b) => (b.tabIndex = -1)); t.tabIndex = 0; t.focus(); }
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      document.activeElement?.click();
+    }
+  });
+
   document.addEventListener("click", (e) => {
-    const pop = el("soapDtPopover");
-    if (pop && !pop.contains(e.target) && e.target !== field) closeSoapPicker();
+    if (pop && pop.classList.contains("open") && !pop.contains(e.target) && e.target !== field) closeSoapPicker();
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSoapPicker(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && pop?.classList.contains("open")) { closeSoapPicker(); field?.focus(); }
+  });
+  // Keep the body-anchored popover glued to the field while open.
+  const reposition = () => { if (pop?.classList.contains("open")) positionSoapPicker(); };
+  window.addEventListener("resize", reposition);
+  window.addEventListener("scroll", reposition, true);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -575,7 +628,7 @@ function init() {
   });
   el("clearRisk")?.addEventListener("click", () => {
     RISKS.forEach((_, i) => { const n = document.querySelector(`input[name="risk${i + 1}"][value="N"]`); if (n) n.checked = true; });
-    const o = el("riskNoteOutput"); if (o) o.innerHTML = "";
+    renderRisk(); // keep the preview showing the (now all-N) table, consistent with every other update
     scheduleSave();
   });
 
