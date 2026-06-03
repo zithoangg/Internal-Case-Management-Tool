@@ -307,19 +307,16 @@ function fillSelect(id, options) {
 function renderRiskRows() {
   const wrap = el("riskTable");
   if (!wrap) return;
-  // Single flexible content column (name + description stacked) so text never gets crushed.
-  const cols = "grid grid-cols-[2rem_1fr_auto] items-center gap-3";
+  const cols = "grid grid-cols-[2rem_minmax(8rem,1fr)_minmax(12rem,2fr)_auto] items-center gap-3";
   let html = `<div class="${cols} px-4 pb-1 text-xs font-bold uppercase tracking-wide text-slate-400">
-    <div class="text-center">No.</div><div>Risk</div><div class="pr-1 text-right">Y / N</div>
+    <div class="text-center">No.</div><div>Risk</div><div>Description</div><div class="pr-1 text-right">Y / N</div>
   </div>`;
   RISKS.forEach((r, i) => {
     const n = i + 1;
     html += `<div class="risk-row ${cols} rounded-xl border border-slate-900/5 bg-white/70 px-4 py-3" role="listitem">
-      <div class="self-start pt-0.5 text-center text-sm font-extrabold text-brand-500">${n}</div>
-      <div class="min-w-0">
-        <div class="text-sm font-bold text-brand-900">${escapeHtml(r.name)}</div>
-        <div class="mt-0.5 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
-      </div>
+      <div class="text-center text-sm font-extrabold text-brand-500">${n}</div>
+      <div class="min-w-0 text-sm font-bold text-brand-900">${escapeHtml(r.name)}</div>
+      <div class="min-w-0 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
       <div class="flex items-center justify-end gap-2">
         <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y">
         <label for="risk${n}_y" class="circle" title="Yes">Y</label>
