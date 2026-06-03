@@ -18,6 +18,8 @@
   --color-brand-800: #154a99;
   --color-brand-900: #163f7d;
 
+  --container-4xl: 56rem;
+
   --color-teal:    #3bb3a3;
   --color-success: #16a37a;
   --color-flag:    #f59e0b;
@@ -274,6 +276,81 @@ input.yn-radio[value="N"]:checked + label.circle {
 .dt-time.sel {
   background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600));
   color: #fff;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Sticky floating pill navigation
+   ══════════════════════════════════════════════════════════ */
+section[id] { scroll-margin-top: 5rem; }
+
+/* Hidden on xs; flex-centered on sm+ */
+.sticky-nav { display: none; }
+
+@media (min-width: 640px) {
+  .sticky-nav {
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    top: 1rem;
+    z-index: 200;
+    margin-block: 1.5rem;
+    pointer-events: none; /* let outside-pill clicks pass through */
+  }
+}
+
+.sticky-nav-inner {
+  pointer-events: auto;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  box-shadow:
+    0 4px 24px rgba(12, 24, 40, 0.11),
+    0 1px 4px  rgba(12, 24, 40, 0.07),
+    0 0 0 1px  rgba(12, 24, 40, 0.04);
+}
+
+.sticky-nav-pill {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  padding: 7px 18px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.sticky-nav-pill:hover  { color: var(--color-brand-600); }
+.sticky-nav-pill.active { color: var(--color-brand-700); font-weight: 700; }
+
+/* Sliding white bubble — positioned via JS */
+.sticky-nav-indicator {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  left: 0;
+  height: calc(100% - 8px);
+  border-radius: 9999px;
+  background: #fff;
+  pointer-events: none;
+  box-shadow: 0 1px 6px rgba(12, 24, 40, 0.10), 0 0 0 1px rgba(12, 24, 40, 0.04);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    width   0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, width;
 }
 
 /* ══════════════════════════════════════════════════════════

@@ -20,7 +20,7 @@
 <body class="px-4 pb-16 sm:px-6">
 
   <!-- ══ Header ══ -->
-  <header class="mx-auto mt-6 max-w-3xl">
+  <header class="mx-auto mt-6 max-w-4xl">
     <div class="relative overflow-hidden rounded-2xl px-8 py-6 text-center shadow-xl"
          style="background:linear-gradient(135deg,var(--color-brand-500),var(--color-brand-600) 50%,var(--color-brand-700));">
       <div class="pointer-events-none absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/5"></div>
@@ -31,11 +31,22 @@
     </div>
   </header>
 
+  <!-- ══ Sticky pill nav (sm+) ══ -->
+  <nav class="sticky-nav" aria-label="Jump to section">
+    <div class="sticky-nav-inner">
+      <button class="sticky-nav-pill" data-nav="sec-title">Title Generator</button>
+      <button class="sticky-nav-pill" data-nav="sec-case">Case Note</button>
+      <button class="sticky-nav-pill" data-nav="sec-risk">Risk Note</button>
+      <button class="sticky-nav-pill" data-nav="sec-soap">SOAP Note</button>
+      <span class="sticky-nav-indicator" aria-hidden="true"></span>
+    </div>
+  </nav>
+
   <!-- ══ Cards ══ -->
-  <main class="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-6">
+  <main class="mx-auto mt-4 grid max-w-4xl grid-cols-1 gap-6">
 
     <!-- ── Title Generator ── -->
-    <section class="card" aria-labelledby="title-heading">
+    <section id="sec-title" class="card" aria-labelledby="title-heading">
       <h2 id="title-heading" class="section-title">Title Generator</h2>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -69,7 +80,7 @@
     </section>
 
     <!-- ── Case Note ── -->
-    <section class="card" aria-labelledby="case-heading">
+    <section id="sec-case" class="card" aria-labelledby="case-heading">
       <h2 id="case-heading" class="section-title">Case Note</h2>
 
       <label class="label" for="issueDescription">Issue description</label>
@@ -103,7 +114,7 @@
     </section>
 
     <!-- ── Risk Note ── -->
-    <section class="card" aria-labelledby="risk-heading">
+    <section id="sec-risk" class="card" aria-labelledby="risk-heading">
       <h2 id="risk-heading" class="section-title">Risk Note</h2>
       <p class="mb-3 text-sm text-slate-500">Tap <span class="font-semibold text-flag">Y</span> / N for each risk. <span class="font-semibold text-flag">Y</span> flags the row.</p>
 
@@ -118,7 +129,7 @@
     </section>
 
     <!-- ── SOAP Note ── -->
-    <section class="card" aria-labelledby="soap-heading">
+    <section id="sec-soap" class="card" aria-labelledby="soap-heading">
       <h2 id="soap-heading" class="section-title">SOAP Note</h2>
 
       <h3 class="sub-title">S – Subjective / Issue Description</h3>
@@ -212,7 +223,7 @@
     </section>
   </main>
 
-  <footer class="mx-auto mt-8 max-w-3xl text-center text-sm text-slate-500/70">
+  <footer class="mx-auto mt-8 max-w-4xl text-center text-sm text-slate-500/70">
     Credit: Robert Van
   </footer>
 
