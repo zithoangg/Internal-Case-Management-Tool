@@ -6,9 +6,14 @@ const script = fs.readFileSync("script.js", "utf8");
 const config = JSON.parse(fs.readFileSync("staticwebapp.config.json", "utf8"));
 
 test("primary SOAP controls have labels", () => {
-  for (const id of ["soapSubject","soapObjective","soapSubscriptionId","soapResourceId","soapDate","soapAssessment","soapPlan"]) {
+  for (const id of ["soapSubject","soapObjective","soapSubscriptionId","soapResourceId","soapDate","soapAssessment","soapPlan","soapTimeline","soapNextContact","soapNextAction"]) {
     assert.match(html, new RegExp(`<label[^>]+for=["']${id}["']`));
   }
+});
+test("internal title and SOAP communication templates are present", () => {
+  for (const value of ["IR","Strike 1","Closure","INT","EXT","Prem","Config","Dev","Perf"]) assert.match(html, new RegExp(`value=["']${value}["']`));
+  assert.match(script, /parts\.join\(" \| "\)/);
+  assert.match(script, /Communication\\nTimeline/);
 });
 test("privacy-first autosave is explicitly gated", () => {
   assert.match(script, /icm-tool-autosave/);
