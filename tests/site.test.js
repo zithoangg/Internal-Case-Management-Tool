@@ -10,6 +10,12 @@ test("primary SOAP controls have labels", () => {
     assert.match(html, new RegExp(`<label[^>]+for=["']${id}["']`));
   }
 });
+
+test("optional SOAP groups are collapsed without shrinking core inputs", () => {
+  assert.match(html, /<details class="soap-details mt-4">[\s\S]*Environment &amp; service checks/);
+  assert.match(html, /<details class="soap-details mt-5">[\s\S]*<strong>Communication<\/strong>/);
+  assert.doesNotMatch(html, /<details class="soap-details[^>]*open/);
+});
 test("internal title and SOAP communication templates are present", () => {
   for (const value of ["IR","Strike 1","Closure","INT","EXT","Prem"]) assert.match(html, new RegExp(`value=["']${value}["']`));
   for (const pcy of ["Config","Dev","Perf","OSS","Developer","Storage","ServiceBus","WebApps","Browsers","DevOps"]) assert.match(script, new RegExp(`"${pcy}"`));

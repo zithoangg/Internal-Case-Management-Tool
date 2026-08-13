@@ -172,7 +172,12 @@
       <label class="label" for="soapObjective">Goal and intended outcome <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapObjective" class="field" placeholder="What is the goal? What are we going to do?" required></textarea>
 
-      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <details class="soap-details mt-4">
+        <summary>
+          <span><strong>Environment &amp; service checks</strong><small>Optional resource, FQR/FDR, and ASC details</small></span>
+          <span class="soap-details-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="soap-details-body grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="label" for="soapSubscriptionId">Subscription ID</label>
           <input id="soapSubscriptionId" type="text" class="field" placeholder="e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" data-validate="guid" />
@@ -239,7 +244,8 @@
           <label class="label" for="soapAscDetails">ASC insights (if any)</label>
           <textarea id="soapAscDetails" class="field" placeholder="Paste ASC insights or short summary"></textarea>
         </div>
-      </div>
+        </div>
+      </details>
 
       <h3 class="sub-title">A – Analysis</h3>
       <label class="label" for="soapAssessment">Analysis / Findings <span class="required-mark" aria-hidden="true">*</span></label>
@@ -249,13 +255,20 @@
       <label class="label" for="soapPlan">Outline action plan <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapPlan" class="field" placeholder="PLAN — Next customer action" required></textarea>
 
-      <h3 class="sub-title">Communication</h3>
+      <details class="soap-details mt-5">
+        <summary>
+          <span><strong>Communication</strong><small>Optional timeline, next contact, and next action</small></span>
+          <span class="soap-details-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="soap-details-body">
       <label class="label" for="soapTimeline">Timeline</label>
       <textarea id="soapTimeline" class="field" placeholder="e.g., 08/13: AppLens review completed…"></textarea>
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div><label class="label" for="soapNextContact">Next Contact</label><textarea id="soapNextContact" class="field" placeholder="Upon receipt of Product Group findings."></textarea></div>
         <div><label class="label" for="soapNextAction">Next Action</label><textarea id="soapNextAction" class="field" placeholder="Await PG review…"></textarea></div>
       </div>
+        </div>
+      </details>
 
       <div class="mt-5 flex flex-wrap gap-3">
         <button id="copySOAPNote" class="btn btn-primary">Copy</button>
