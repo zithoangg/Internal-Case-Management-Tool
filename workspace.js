@@ -59,15 +59,19 @@
   });
 
   const savedOutputStyle = localStorage.getItem(OUTPUT_PREF) === "compact" ? "compact" : "standard";
-  document.documentElement.dataset.outputStyle = savedOutputStyle;
-  if ($("outputStyle")) $("outputStyle").value = savedOutputStyle;
-  $("outputStyle")?.addEventListener("change", (event) => {
-    const style = event.target.value === "compact" ? "compact" : "standard";
+  function applyOutputStyle(style, announce = false) {
     localStorage.setItem(OUTPUT_PREF, style);
     document.documentElement.dataset.outputStyle = style;
+    document.querySelectorAll("[data-output-style]").forEach(button => {
+      const active = button.dataset.outputStyle === style;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
     document.dispatchEvent(new Event("icm:refresh"));
-    window.toast?.(`${style === "compact" ? "Compact" : "Standard"} output selected`);
-  });
+    if (announce) window.toast?.(`${style === "compact" ? "Compact" : "Standard"} output selected`);
+  }
+  applyOutputStyle(savedOutputStyle);
+  document.querySelectorAll("[data-output-style]").forEach(button => button.addEventListener("click", () => applyOutputStyle(button.dataset.outputStyle, true)));
 
   $("toggleAutosave")?.addEventListener("click", () => {
     if (autosaveOn()) {

@@ -33,6 +33,8 @@ test("Microsoft branding and restrained SOAP underlining are present", () => {
 test("draft menu, required markers, and output styles are available", () => {
   assert.match(html, /class="draft-menu"/);
   assert.match(html, /id="outputStyle"/);
+  assert.match(html, /data-output-style="standard"/);
+  assert.match(html, /data-output-style="compact"/);
   assert.match(html, /class="required-mark"/);
   assert.match(script, /compactOutput/);
 });
