@@ -41,9 +41,12 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button>
-      <button id="exportDraft" type="button" class="btn btn-compact btn-ghost">Export</button>
-      <button id="importDraft" type="button" class="btn btn-compact btn-ghost">Import</button>
+      <details class="draft-menu">
+        <summary class="btn btn-compact btn-ghost">Draft</summary>
+        <div class="draft-menu-panel"><button id="exportDraft" type="button">Export draft</button><button id="importDraft" type="button">Import draft</button></div>
+      </details>
       <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
+      <label class="output-style-control">Output <select id="outputStyle" aria-label="Output style"><option value="standard">Standard</option><option value="compact">Compact</option></select></label>
       <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
       <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
     </div>
@@ -75,26 +78,26 @@
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label class="label" for="nextContactDate">Date</label>
+          <label class="label" for="nextContactDate">Date <span class="required-mark" aria-hidden="true">*</span></label>
           <input id="nextContactDate" type="text" class="field date-like" placeholder="Select date" autocomplete="off" readonly required />
         </div>
         <div>
-          <label class="label" for="titleAction">Action</label>
-          <select id="titleAction" class="field">
+          <label class="label" for="titleAction">Action <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="titleAction" class="field" required>
             <option value="IR">IR</option><option value="F">F</option><option value="Strike 1">Strike 1</option><option value="Strike 2">Strike 2</option><option value="Strike 3">Strike 3</option><option value="Closure">Closure</option>
           </select>
         </div>
         <div>
-          <label class="label" for="titleAudience">Communication type</label>
-          <select id="titleAudience" class="field"><option value="INT">INT</option><option value="EXT">EXT</option></select>
+          <label class="label" for="titleAudience">Communication type <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="titleAudience" class="field" required><option value="INT">INT</option><option value="EXT">EXT</option></select>
         </div>
         <div>
-          <label class="label" for="titleTier">Support tier</label>
-          <select id="titleTier" class="field"><option value="BC">BC</option><option value="Prem">Prem</option></select>
+          <label class="label" for="titleTier">Support tier <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="titleTier" class="field" required><option value="BC">BC</option><option value="Prem">Prem</option></select>
         </div>
         <div class="sm:col-span-2">
-          <label class="label" for="titlePcy">PCY</label>
-          <select id="titlePcy" class="field" aria-label="PCY"></select>
+          <label class="label" for="titlePcy">PCY <span class="required-mark" aria-hidden="true">*</span></label>
+          <select id="titlePcy" class="field" aria-label="PCY" required></select>
         </div>
         <div class="sm:col-span-2">
           <label class="label" for="titleNotes">Additional notes (optional)</label>
@@ -113,7 +116,7 @@
     <section id="sec-case" class="card" aria-labelledby="case-heading">
       <h2 id="case-heading" class="section-title">Case Note</h2>
 
-      <label class="label" for="issueDescription">Issue description</label>
+      <label class="label" for="issueDescription">Issue description <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="issueDescription" class="field" placeholder="e.g., VM fails to start with error 'XYZ' when scaling" required></textarea>
 
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -133,7 +136,7 @@
       <label class="label mt-4" for="communicationTimeline">Communication / Timeline</label>
       <textarea id="communicationTimeline" class="field" placeholder="e.g., Customer contacted at 09:00 UTC, awaiting logs"></textarea>
 
-      <label class="label mt-4" for="nextActionCase">Next action</label>
+      <label class="label mt-4" for="nextActionCase">Next action <span class="required-mark" aria-hidden="true">*</span></label>
       <input id="nextActionCase" type="text" class="field" placeholder="e.g., Scheduled meeting with customer" required />
 
       <div class="mt-5 flex flex-wrap gap-3">
@@ -163,11 +166,11 @@
       <h2 id="soap-heading" class="section-title">SOAP Note</h2>
 
       <h3 class="sub-title">S – Subjective / Issue Description</h3>
-      <label class="label" for="soapSubject">Customer experience summary</label>
+      <label class="label" for="soapSubject">Customer experience summary <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapSubject" class="field" placeholder="What is the customer experiencing?" required></textarea>
 
       <h3 class="sub-title">O – Objective / Environment</h3>
-      <label class="label" for="soapObjective">Goal and intended outcome</label>
+      <label class="label" for="soapObjective">Goal and intended outcome <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapObjective" class="field" placeholder="What is the goal? What are we going to do?" required></textarea>
 
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -240,11 +243,11 @@
       </div>
 
       <h3 class="sub-title">A – Analysis</h3>
-      <label class="label" for="soapAssessment">Analysis / Findings</label>
+      <label class="label" for="soapAssessment">Analysis / Findings <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapAssessment" class="field" placeholder="ANALYSIS — What did we do? Verbose notes + env data + screenshots" required></textarea>
 
       <h3 class="sub-title">P – Plan</h3>
-      <label class="label" for="soapPlan">Outline action plan</label>
+      <label class="label" for="soapPlan">Outline action plan <span class="required-mark" aria-hidden="true">*</span></label>
       <textarea id="soapPlan" class="field" placeholder="PLAN — Next customer action" required></textarea>
 
       <h3 class="sub-title">Communication</h3>
