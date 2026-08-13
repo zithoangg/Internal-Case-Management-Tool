@@ -95,7 +95,7 @@ const line = (label, v) => `<p style="margin:0 0 2px 0;"><strong>${escapeHtml(la
    ════════════════════════════════════════════════════════════════ */
 function buildTitle() {
   const date = val("nextContactDate");
-  const parts = [val("titleAction"), val("titleAudience"), val("titleTier"), val("titleWorkstream"), val("titleNotes")].filter(Boolean);
+  const parts = [val("titleAction"), val("titleAudience"), val("titleTier"), val("titlePcy"), val("titleNotes")].filter(Boolean);
   return `${date ? `${date} ` : ""}${parts.join(" | ")}`;
 }
 
@@ -216,7 +216,7 @@ function renderTitle() {
   const meaningful = TITLE_IDS.some((id) => val(id));
   out.textContent = meaningful ? t : "";
 }
-const TITLE_IDS = ["nextContactDate", "titleAction", "titleAudience", "titleTier", "titleWorkstream", "titleNotes"];
+const TITLE_IDS = ["nextContactDate", "titleAction", "titleAudience", "titleTier", "titlePcy", "titleNotes"];
 const CASE_IDS = ["issueDescription", "icmNeeded", "nextContactCase", "troubleshootingDone", "communicationTimeline", "nextActionCase"];
 const SOAP_IDS = ["soapSubject", "soapObjective", "soapSubscriptionId", "soapResourceId", "soapTimeframe", "soapIsFqr", "soapPossibleFdr", "soapFdrExplain", "soapAscViewed", "soapAscInsights", "soapAscDetails", "soapAssessment", "soapPlan", "soapTimeline", "soapNextContact", "soapNextAction"];
 const anyFilled = (ids) => ids.some((id) => val(id));
@@ -808,6 +808,7 @@ function initScrollSpy() {
 function init() {
   // 1. Build DOM from data
   renderRiskRows();
+  fillSelect("titlePcy", PCY_OPTIONS);
 
   // 2. Date pickers (Air Datepicker)
   setupPickers();

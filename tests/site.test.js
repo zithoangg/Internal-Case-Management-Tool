@@ -11,7 +11,9 @@ test("primary SOAP controls have labels", () => {
   }
 });
 test("internal title and SOAP communication templates are present", () => {
-  for (const value of ["IR","Strike 1","Closure","INT","EXT","Prem","Config","Dev","Perf"]) assert.match(html, new RegExp(`value=["']${value}["']`));
+  for (const value of ["IR","Strike 1","Closure","INT","EXT","Prem"]) assert.match(html, new RegExp(`value=["']${value}["']`));
+  for (const pcy of ["AppService_Config","AppService_Dev","AppService_Perf","Developer_Storage","Developer_ServiceBus","WebApps","Browsers","DevOps"]) assert.match(script, new RegExp(`"${pcy}"`));
+  assert.match(html, />Communication type</);
   assert.match(script, /parts\.join\(" \| "\)/);
   assert.match(script, /Communication\\nTimeline/);
 });
