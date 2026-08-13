@@ -86,7 +86,8 @@ function parseDateTime(s) {
 /* ── Note building blocks (inline styles → survive paste into Outlook/ICM/Teams) ── */
 const NOTE_WRAP_OPEN = '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.5;color:#1a1a1a;">';
 const NOTE_WRAP_CLOSE = "</div>";
-const head = (t) => `<p style="margin:0 0 4px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
+const head = (t) => `<p style="margin:0 0 4px 0;font-weight:bold;">${escapeHtml(t)}</p>`;
+const majorHead = (t) => `<p style="margin:0 0 6px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
 const body = (v) => `<p style="margin:0 0 14px 0;">${nl2br(v)}</p>`;
 const line = (label, v) => `<p style="margin:0 0 2px 0;"><strong>${escapeHtml(label)}:</strong> ${nl2br(v)}</p>`;
 
@@ -138,14 +139,14 @@ function buildSoapTemplate() {
     ["Has ASC Been Viewed/Used", val("soapAscViewed")], ["Any Insights Generated in ASC", val("soapAscInsights")],
     ["ASC Insights Details", val("soapAscDetails")],
   ];
-  let html = NOTE_WRAP_OPEN + head("Issue Description");
+  let html = NOTE_WRAP_OPEN + majorHead("Issue Description");
   html += head("S – Subjective") + body(val("soapSubject"));
   html += head("O – Objective") + body(val("soapObjective"));
   objectiveDetails.filter(([,v]) => v).forEach(([label,value]) => { html += line(label, value); });
   html += '<p style="margin:0 0 14px 0;"></p>';
   html += head("A – Assessment") + body(val("soapAssessment"));
   html += head("P – Plan") + body(val("soapPlan"));
-  html += head("Communication") + head("Timeline") + body(val("soapTimeline"));
+  html += majorHead("Communication") + head("Timeline") + body(val("soapTimeline"));
   html += head("Next Contact") + body(val("soapNextContact"));
   html += head("Next Action") + body(val("soapNextAction")) + NOTE_WRAP_CLOSE;
   let plain = `Issue Description\nS – Subjective:\n${val("soapSubject")}\n\nO – Objective:\n${val("soapObjective")}\n`;
