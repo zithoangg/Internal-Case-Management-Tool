@@ -40,13 +40,15 @@
       <p class="mt-0.5 text-xs text-slate-500">Nothing is uploaded by this website.</p>
     </div>
     <div class="workspace-actions flex flex-wrap gap-2">
-      <button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button>
-      <details class="draft-menu">
-        <summary class="btn btn-compact btn-ghost">Draft tools</summary>
-        <div class="draft-menu-panel"><button id="exportDraft" type="button"><strong>Export draft</strong><small>Download a backup file</small></button><button id="importDraft" type="button"><strong>Import draft</strong><small>Restore from a backup file</small></button></div>
+      <details class="workspace-menu">
+        <summary class="btn btn-compact btn-ghost"><span aria-hidden="true">⚙</span> Workspace</summary>
+        <div class="workspace-menu-panel">
+          <div class="workspace-setting"><strong>Local draft</strong><small>Remember this case on this device</small><button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button></div>
+          <div class="workspace-setting"><strong>Backup</strong><small>Move a draft between browsers</small><div class="flex gap-2"><button id="exportDraft" type="button" class="mini-action">Export</button><button id="importDraft" type="button" class="mini-action">Import</button></div></div>
+          <div class="workspace-setting"><strong>Paste spacing</strong><small>Changes spacing in copied notes</small><div id="outputStyle" class="output-style-control" role="group" aria-label="Spacing used in copied notes"><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div></div>
+        </div>
       </details>
       <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
-      <div id="outputStyle" class="output-style-control" role="group" aria-label="Spacing used in copied notes" title="Changes spacing in the copied note"><span>Paste spacing</span><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div>
       <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
       <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
     </div>

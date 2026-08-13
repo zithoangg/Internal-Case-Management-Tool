@@ -475,17 +475,17 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
 .save-dot.on { background:var(--color-success); box-shadow:0 0 0 4px rgba(22,163,122,.14); }
 .required-mark { color:#dc2626; font-weight:800; }
 .workspace-actions { align-items:flex-start; }
-.draft-menu { position:relative; }
-.draft-menu[open] { order:10; flex-basis:100%; }
-.draft-menu summary { list-style:none; }
-.draft-menu summary::-webkit-details-marker { display:none; }
-.draft-menu-panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.25rem; width:22rem; max-width:calc(100vw - 3rem); margin-top:.4rem; padding:.35rem; border:1px solid rgba(15,23,42,.1); border-radius:.75rem; background:#fff; box-shadow:0 6px 18px rgba(12,24,40,.1); }
-.draft-menu-panel button { display:block; width:100%; border-radius:.55rem; padding:.55rem .7rem; color:#334155; text-align:left; font-size:.8rem; cursor:pointer; }
-.draft-menu-panel button strong,.draft-menu-panel button small { display:block; }
-.draft-menu-panel button small { margin-top:.12rem; color:#64748b; font-size:.7rem; font-weight:500; }
-.draft-menu-panel button:hover { color:#155bbf; background:#eef6ff; }
-.output-style-control { display:flex; align-items:center; gap:2px; border:2px solid rgba(43,140,255,.15); border-radius:.75rem; padding:.2rem; color:#155bbf; background:#fff; font-size:.75rem; font-weight:700; }
-.output-style-control > span { padding:0 .4rem; }
+.workspace-menu { position:relative; }
+.workspace-menu[open] { order:10; flex-basis:100%; }
+.workspace-menu summary { list-style:none; }
+.workspace-menu summary::-webkit-details-marker { display:none; }
+.workspace-menu-panel { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; width:34rem; max-width:calc(100vw - 3rem); margin-top:.5rem; padding:.55rem; border:1px solid rgba(15,23,42,.1); border-radius:.85rem; background:#fff; box-shadow:0 6px 18px rgba(12,24,40,.1); }
+.workspace-setting { display:flex; flex-direction:column; align-items:flex-start; gap:.3rem; min-width:0; border-radius:.65rem; padding:.55rem; background:#f8fafc; }
+.workspace-setting > strong { color:#163f7d; font-size:.8rem; }
+.workspace-setting > small { min-height:2em; color:#64748b; font-size:.68rem; line-height:1.35; }
+.mini-action { border:1px solid rgba(43,140,255,.2); border-radius:.5rem; padding:.35rem .55rem; color:#155bbf; background:#fff; font-size:.72rem; font-weight:700; cursor:pointer; }
+.mini-action:hover { background:#eef6ff; border-color:rgba(43,140,255,.45); }
+.output-style-control { display:flex; align-items:center; gap:2px; border:2px solid rgba(43,140,255,.15); border-radius:.65rem; padding:.2rem; color:#155bbf; background:#fff; font-size:.72rem; font-weight:700; }
 .output-style-control button { border-radius:.5rem; padding:.28rem .48rem; color:#64748b; cursor:pointer; transition:color .15s,background .15s,box-shadow .15s; }
 .output-style-control button:hover { color:#155bbf; background:#eef6ff; }
 .output-style-control button.active { color:#155bbf; background:#eef6ff; box-shadow:0 1px 4px rgba(12,24,40,.12); }
@@ -504,6 +504,8 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
   .workspace-bar { align-items:flex-start; flex-direction:column; }
   .mobile-section-nav { display:block; }
   .workspace-bar .btn { flex:1 1 auto; }
+  .workspace-menu-panel { grid-template-columns:1fr; width:100%; }
+  .workspace-setting > small { min-height:0; }
 }
 
 /* Dark theme */
@@ -538,10 +540,13 @@ html[data-theme="dark"] .text-slate-500 { color:#94a3b8; }
 html[data-theme="dark"] footer { color:#94a3b8; }
 html[data-theme="dark"] .theme-icon-button { color:#a7b4c6; background:rgba(15,23,42,.96); border-color:rgba(148,163,184,.3); box-shadow:0 8px 30px rgba(0,0,0,.4); }
 html[data-theme="dark"] .theme-icon-button:hover { background:#1e293b; border-color:rgba(147,197,253,.5); }
-html[data-theme="dark"] .draft-menu-panel,
+html[data-theme="dark"] .workspace-menu-panel,
 html[data-theme="dark"] .output-style-control { color:#bfdbfe; background:#111c2f; border-color:rgba(96,165,250,.24); }
-html[data-theme="dark"] .draft-menu-panel button,
+html[data-theme="dark"] .workspace-setting { background:#162238; }
+html[data-theme="dark"] .workspace-setting > strong { color:#bfdbfe; }
+html[data-theme="dark"] .workspace-setting > small { color:#7f8da3; }
+html[data-theme="dark"] .mini-action { color:#bfdbfe; background:#111c2f; border-color:rgba(96,165,250,.24); }
+html[data-theme="dark"] .workspace-menu-panel button,
 html[data-theme="dark"] .output-style-control button { color:#94a3b8; }
-html[data-theme="dark"] .draft-menu-panel button small { color:#7f8da3; }
 html[data-theme="dark"] .output-style-control button:hover,
 html[data-theme="dark"] .output-style-control button.active { color:#bfdbfe; background:#1e293b; }
