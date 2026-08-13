@@ -30,6 +30,14 @@
     if (moveFocus) $(id)?.querySelector("h2")?.focus({preventScroll:true});
   }
 
+  $("advancedToggle")?.addEventListener("click", () => {
+    const panel = $("advancedPanel");
+    const open = !panel?.classList.contains("open");
+    panel?.classList.toggle("open", open);
+    panel?.setAttribute("aria-hidden", String(!open));
+    $("advancedToggle")?.setAttribute("aria-expanded", String(open));
+  });
+
   function updateSaveUi(message) {
     const on = autosaveOn();
     $("toggleAutosave")?.setAttribute("aria-pressed", String(on));

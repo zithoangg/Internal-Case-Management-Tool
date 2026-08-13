@@ -31,8 +31,9 @@ test("Microsoft branding and restrained SOAP underlining are present", () => {
   assert.match(script, /head\("S – Subjective"\)/);
 });
 test("draft menu, required markers, and output styles are available", () => {
-  assert.match(html, /class="workspace-menu"/);
-  assert.match(html, /> Workspace</);
+  assert.match(html, /id="advancedToggle"/);
+  assert.match(html, /Advanced settings/);
+  assert.match(html, /id="advancedPanel"/);
   assert.match(html, />Paste spacing</);
   assert.match(html, /id="outputStyle"/);
   assert.match(html, /data-output-style="standard"/);

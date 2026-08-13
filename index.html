@@ -35,23 +35,20 @@
   <button id="themeToggle" type="button" class="theme-icon-button" aria-pressed="false" aria-label="Switch to dark mode" title="Switch to dark mode">☾</button>
 
   <section class="workspace-bar mx-auto mt-4 max-w-4xl" aria-label="Workspace controls">
-    <div>
-      <div class="flex items-center gap-2 text-sm font-bold text-brand-900"><span id="saveDot" class="save-dot"></span><span id="saveStatus">Local saving is off</span></div>
-      <p class="mt-0.5 text-xs text-slate-500">Nothing is uploaded by this website.</p>
+    <div class="workspace-bar-top">
+      <div><div class="flex items-center gap-2 text-sm font-bold text-brand-900"><span id="saveDot" class="save-dot"></span><span id="saveStatus">Local saving is off</span></div><p class="mt-0.5 text-xs text-slate-500">Nothing is uploaded by this website.</p></div>
+      <div class="workspace-actions flex flex-wrap gap-2">
+        <button id="advancedToggle" type="button" class="btn btn-compact btn-ghost" aria-expanded="false" aria-controls="advancedPanel"><span aria-hidden="true">⚙</span> Advanced settings <span class="settings-chevron" aria-hidden="true">⌄</span></button>
+        <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
+        <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
+      </div>
     </div>
-    <div class="workspace-actions flex flex-wrap gap-2">
-      <details class="workspace-menu">
-        <summary class="btn btn-compact btn-ghost"><span aria-hidden="true">⚙</span> Workspace</summary>
-        <div class="workspace-menu-panel">
-          <div class="workspace-setting"><strong>Local draft</strong><small>Remember this case on this device</small><button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button></div>
-          <div class="workspace-setting"><strong>Backup</strong><small>Move a draft between browsers</small><div class="flex gap-2"><button id="exportDraft" type="button" class="mini-action">Export</button><button id="importDraft" type="button" class="mini-action">Import</button></div></div>
-          <div class="workspace-setting"><strong>Paste spacing</strong><small>Changes spacing in copied notes</small><div id="outputStyle" class="output-style-control" role="group" aria-label="Spacing used in copied notes"><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div></div>
-        </div>
-      </details>
-      <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
-      <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
-      <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
-    </div>
+    <div id="advancedPanel" class="advanced-panel" aria-hidden="true"><div class="advanced-panel-inner">
+      <div class="workspace-setting"><strong>Local draft</strong><small>Remember this case on this device</small><button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button></div>
+      <div class="workspace-setting"><strong>Backup</strong><small>Move a draft between browsers</small><div class="flex gap-2"><button id="exportDraft" type="button" class="mini-action">Export</button><button id="importDraft" type="button" class="mini-action">Import</button></div></div>
+      <div class="workspace-setting"><strong>Paste spacing</strong><small>Changes spacing in copied notes</small><div id="outputStyle" class="output-style-control" role="group" aria-label="Spacing used in copied notes"><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div></div>
+    </div></div>
+    <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
   </section>
 
   <!-- ══ Sticky pill nav (sm+) ══ -->
