@@ -39,14 +39,14 @@
       <div class="flex items-center gap-2 text-sm font-bold text-brand-900"><span id="saveDot" class="save-dot"></span><span id="saveStatus">Local saving is off</span></div>
       <p class="mt-0.5 text-xs text-slate-500">Nothing is uploaded by this website.</p>
     </div>
-    <div class="flex flex-wrap gap-2">
+    <div class="workspace-actions flex flex-wrap gap-2">
       <button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button>
       <details class="draft-menu">
-        <summary class="btn btn-compact btn-ghost">Draft</summary>
-        <div class="draft-menu-panel"><button id="exportDraft" type="button">Export draft</button><button id="importDraft" type="button">Import draft</button></div>
+        <summary class="btn btn-compact btn-ghost">Draft tools</summary>
+        <div class="draft-menu-panel"><button id="exportDraft" type="button"><strong>Export draft</strong><small>Download a backup file</small></button><button id="importDraft" type="button"><strong>Import draft</strong><small>Restore from a backup file</small></button></div>
       </details>
       <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
-      <div id="outputStyle" class="output-style-control" role="group" aria-label="Output style"><span>Output</span><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div>
+      <div id="outputStyle" class="output-style-control" role="group" aria-label="Spacing used in copied notes" title="Changes spacing in the copied note"><span>Paste spacing</span><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div>
       <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
       <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
     </div>

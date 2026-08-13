@@ -474,11 +474,15 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
 .save-dot { width:.6rem; height:.6rem; border-radius:999px; background:#94a3b8; box-shadow:0 0 0 4px rgba(148,163,184,.14); }
 .save-dot.on { background:var(--color-success); box-shadow:0 0 0 4px rgba(22,163,122,.14); }
 .required-mark { color:#dc2626; font-weight:800; }
+.workspace-actions { align-items:flex-start; }
 .draft-menu { position:relative; }
+.draft-menu[open] { order:10; flex-basis:100%; }
 .draft-menu summary { list-style:none; }
 .draft-menu summary::-webkit-details-marker { display:none; }
-.draft-menu-panel { position:absolute; z-index:600; top:calc(100% + .45rem); right:0; width:10rem; padding:.35rem; border:1px solid rgba(15,23,42,.1); border-radius:.75rem; background:#fff; box-shadow:0 14px 36px rgba(12,24,40,.18); }
-.draft-menu-panel button { display:block; width:100%; border-radius:.55rem; padding:.55rem .7rem; color:#334155; text-align:left; font-size:.8rem; font-weight:650; cursor:pointer; }
+.draft-menu-panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.25rem; width:22rem; max-width:calc(100vw - 3rem); margin-top:.4rem; padding:.35rem; border:1px solid rgba(15,23,42,.1); border-radius:.75rem; background:#fff; box-shadow:0 6px 18px rgba(12,24,40,.1); }
+.draft-menu-panel button { display:block; width:100%; border-radius:.55rem; padding:.55rem .7rem; color:#334155; text-align:left; font-size:.8rem; cursor:pointer; }
+.draft-menu-panel button strong,.draft-menu-panel button small { display:block; }
+.draft-menu-panel button small { margin-top:.12rem; color:#64748b; font-size:.7rem; font-weight:500; }
 .draft-menu-panel button:hover { color:#155bbf; background:#eef6ff; }
 .output-style-control { display:flex; align-items:center; gap:2px; border:2px solid rgba(43,140,255,.15); border-radius:.75rem; padding:.2rem; color:#155bbf; background:#fff; font-size:.75rem; font-weight:700; }
 .output-style-control > span { padding:0 .4rem; }
@@ -538,5 +542,6 @@ html[data-theme="dark"] .draft-menu-panel,
 html[data-theme="dark"] .output-style-control { color:#bfdbfe; background:#111c2f; border-color:rgba(96,165,250,.24); }
 html[data-theme="dark"] .draft-menu-panel button,
 html[data-theme="dark"] .output-style-control button { color:#94a3b8; }
+html[data-theme="dark"] .draft-menu-panel button small { color:#7f8da3; }
 html[data-theme="dark"] .output-style-control button:hover,
 html[data-theme="dark"] .output-style-control button.active { color:#bfdbfe; background:#1e293b; }
