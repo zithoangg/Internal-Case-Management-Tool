@@ -15,6 +15,9 @@ test("internal title and SOAP communication templates are present", () => {
   assert.match(script, /parts\.join\(" \| "\)/);
   assert.match(script, /Communication\\nTimeline/);
 });
+test("legacy scroll spy cannot override focused workspace tabs", () => {
+  assert.match(script, /body\.classList\.contains\("workspace-mode"\)\) return/);
+});
 test("privacy-first autosave is explicitly gated", () => {
   assert.match(script, /icm-tool-autosave/);
   assert.match(script, /!== "on"\) return/);
