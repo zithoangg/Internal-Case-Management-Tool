@@ -23,6 +23,13 @@ test("copy validation, undo, and the current SOAP generator are wired", () => {
   assert.doesNotMatch(script, /function buildSoapNote/);
   assert.match(script, /buildSoapTemplate/);
 });
+test("Microsoft branding and restrained SOAP underlining are present", () => {
+  assert.match(html, /class="ms-mark"/);
+  assert.match(script, /const majorHead/);
+  assert.match(script, /majorHead\("Issue Description"\)/);
+  assert.match(script, /majorHead\("Communication"\)/);
+  assert.match(script, /head\("S – Subjective"\)/);
+});
 test("legacy scroll spy cannot override focused workspace tabs", () => {
   assert.match(script, /body\.classList\.contains\("workspace-mode"\)\) return/);
 });
