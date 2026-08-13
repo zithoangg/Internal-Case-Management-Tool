@@ -18,6 +18,11 @@ test("internal title and SOAP communication templates are present", () => {
 test("legacy scroll spy cannot override focused workspace tabs", () => {
   assert.match(script, /body\.classList\.contains\("workspace-mode"\)\) return/);
 });
+test("light mode is the default and dark mode is optional", () => {
+  const workspace = fs.readFileSync("workspace.js", "utf8");
+  assert.match(workspace, /THEME_PREF\) === "dark" \? "dark" : "light"/);
+  assert.match(workspace, /next = .*=== "dark" \? "light" : "dark"/);
+});
 test("privacy-first autosave is explicitly gated", () => {
   assert.match(script, /icm-tool-autosave/);
   assert.match(script, /!== "on"\) return/);
