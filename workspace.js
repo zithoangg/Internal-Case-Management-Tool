@@ -41,7 +41,12 @@
     document.documentElement.dataset.theme = theme;
     const dark = theme === "dark";
     $("themeToggle")?.setAttribute("aria-pressed", String(dark));
-    if ($("themeToggle")) $("themeToggle").textContent = dark ? "Light mode" : "Dark mode";
+    if ($("themeToggle")) {
+      const label = dark ? "Switch to light mode" : "Switch to dark mode";
+      $("themeToggle").textContent = dark ? "☀" : "☾";
+      $("themeToggle").setAttribute("aria-label", label);
+      $("themeToggle").title = label;
+    }
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0b1220" : "#1468d4");
   }
   // Light is the product default; dark is an explicit, remembered user choice.

@@ -22,6 +22,8 @@ test("light mode is the default and dark mode is optional", () => {
   const workspace = fs.readFileSync("workspace.js", "utf8");
   assert.match(workspace, /THEME_PREF\) === "dark" \? "dark" : "light"/);
   assert.match(workspace, /next = .*=== "dark" \? "light" : "dark"/);
+  assert.match(html, /id="themeToggle"[^>]+aria-label="Switch to dark mode"/);
+  assert.match(workspace, /textContent = dark \? "☀" : "☾"/);
 });
 test("privacy-first autosave is explicitly gated", () => {
   assert.match(script, /icm-tool-autosave/);
