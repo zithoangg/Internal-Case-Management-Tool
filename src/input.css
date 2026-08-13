@@ -122,6 +122,10 @@
   .field--invalid {
     border-color: #ef4444 !important;
   }
+  .field--required-missing {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+  }
   .field--invalid:focus {
     @apply ring-4;
     --tw-ring-color: rgba(239, 68, 68, 0.15);
