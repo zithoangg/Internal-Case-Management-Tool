@@ -44,7 +44,8 @@
     if ($("themeToggle")) $("themeToggle").textContent = dark ? "Light mode" : "Dark mode";
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0b1220" : "#1468d4");
   }
-  const initialTheme = localStorage.getItem(THEME_PREF) || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  // Light is the product default; dark is an explicit, remembered user choice.
+  const initialTheme = localStorage.getItem(THEME_PREF) === "dark" ? "dark" : "light";
   applyTheme(initialTheme);
   $("themeToggle")?.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
