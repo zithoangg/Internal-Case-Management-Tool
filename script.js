@@ -27,8 +27,8 @@ const RISKS = [
 
 const SERVICE_LEVELS = ["BC", "Unified"];
 const PCY_OPTIONS = [
-  "AppService_Config", "AppService_Dev", "AppService_Perf", "AppService_OSS",
-  "Developer_Developer", "Developer_Storage", "Developer_ServiceBus",
+  "Config", "Dev", "Perf", "OSS",
+  "Developer", "Storage", "ServiceBus",
   "WebApps", "Browsers", "DevOps",
 ];
 
@@ -113,56 +113,6 @@ function buildCaseNote() {
   return { html, plain };
 }
 
-function buildSoapNote() {
-  const subject = val("soapSubject");
-  const objective = val("soapObjective");
-  const subId = val("soapSubscriptionId");
-  const resId = val("soapResourceId");
-  const timeframe = val("soapTimeframe");
-  const isFqr = val("soapIsFqr");
-  const possFdr = val("soapPossibleFdr");
-  const fdrExplain = val("soapFdrExplain");
-  const ascViewed = val("soapAscViewed");
-  const ascInsights = val("soapAscInsights");
-  const ascDetails = val("soapAscDetails");
-  const assessment = val("soapAssessment");
-  const plan = val("soapPlan");
-
-  let html = NOTE_WRAP_OPEN;
-  html += head("S – Subjective / Issue Description") + body(subject);
-  html += head("O – Objective / Environment");
-  if (objective) html += body(objective);
-  html += line("Subscription ID", subId);
-  html += line("Affected Resource ID", resId);
-  html += line("Timeframe of Issue Observation", timeframe);
-  html += line("Is FQR Sent", isFqr);
-  html += line("Possible FDR", possFdr);
-  if (fdrExplain) html += line("FDR explanation", fdrExplain);
-  html += line("Has ASC Been Viewed/Used", ascViewed);
-  html += line("Any Insights Generated in ASC", ascInsights);
-  if (ascDetails) html += line("ASC Insights Details", ascDetails);
-  html += '<p style="margin:0 0 14px 0;"></p>';
-  html += head("A – Analysis") + body(assessment);
-  html += head("P – Plan") + body(plan);
-  html += NOTE_WRAP_CLOSE;
-
-  let plain = `S – Subjective / Issue Description:\n${subject}\n\n`;
-  plain += "O – Objective / Environment:\n";
-  if (objective) plain += `${objective}\n`;
-  plain += `Subscription ID: ${subId}\n`;
-  plain += `Affected Resource ID: ${resId}\n`;
-  plain += `Timeframe of Issue Observation: ${timeframe}\n`;
-  plain += `Is FQR Sent: ${isFqr}\n`;
-  plain += `Possible FDR: ${possFdr}\n`;
-  if (fdrExplain) plain += `FDR explanation: ${fdrExplain}\n`;
-  plain += `Has ASC Been Viewed/Used: ${ascViewed}\n`;
-  plain += `Any Insights Generated in ASC: ${ascInsights}\n`;
-  if (ascDetails) plain += `ASC Insights Details: ${ascDetails}\n`;
-  plain += `\nA – Analysis:\n${assessment}\n\n`;
-  plain += `P – Plan:\n${plan}\n`;
-  return { html, plain };
-}
-
 function buildRiskNote() {
   const cell = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;vertical-align:top;";
   const th = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;";
@@ -228,7 +178,7 @@ function renderSoap() { const o = el("soapOutput"); if (o) o.innerHTML = anyFill
 /* ════════════════════════════════════════════════════════════════
    Clipboard + toast
    ════════════════════════════════════════════════════════════════ */
-function toast(msg, type = "success") {
+function toast(msg, type = "success", action = null) {
   const wrap = el("toasts");
   if (!wrap) { alert(msg); return; }
   const t = document.createElement("div");
@@ -236,14 +186,43 @@ function toast(msg, type = "success") {
   t.style.background = type === "error"
     ? "linear-gradient(135deg,#ef4444,#dc2626)"
     : "linear-gradient(135deg,var(--color-brand-500),var(--color-brand-600))";
-  t.textContent = msg;
+  const label = document.createElement("span");
+  label.textContent = msg;
+  t.appendChild(label);
+  if (action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ml-3 rounded-lg bg-white/20 px-2 py-1 font-bold underline";
+    button.textContent = action.label;
+    button.addEventListener("click", () => { action.run(); t.remove(); });
+    t.appendChild(button);
+  }
   wrap.appendChild(t);
   setTimeout(() => {
     t.style.transition = "opacity .3s, transform .3s";
     t.style.opacity = "0";
     t.style.transform = "translateY(8px)";
     setTimeout(() => t.remove(), 300);
-  }, 2200);
+  }, action ? 6000 : 2200);
+}
+
+function offerUndo(snapshot, message = "Fields cleared") {
+  toast(message, "success", { label: "Undo", run: () => {
+    applyState(snapshot);
+    document.dispatchEvent(new Event("icm:refresh"));
+    toast("Restored");
+  }});
+}
+
+function requireFields(ids, message) {
+  const missing = ids.map(el).filter((field) => field && !field.value.trim());
+  document.querySelectorAll(".field--required-missing").forEach((field) => field.classList.remove("field--required-missing"));
+  if (!missing.length) return true;
+  missing.forEach((field) => field.classList.add("field--required-missing"));
+  const first = missing[0];
+  (el(`${first.id}--btn`) || first).focus();
+  toast(message, "error");
+  return false;
 }
 
 function legacyCopy(text) {
@@ -832,6 +811,7 @@ function init() {
 
   // 5. Copy buttons (one-click: copies the live preview, including any manual edits)
   el("copyTitle")?.addEventListener("click", () => {
+    if (!requireFields(["nextContactDate", "titleAction", "titleAudience", "titleTier", "titlePcy"], "Complete the required title fields first")) return;
     // Show the generated title in the preview box so what's copied is also visible.
     renderTitle();
     const out = el("titleOutput");
@@ -845,17 +825,24 @@ function init() {
     if (!out.innerHTML.trim()) out.innerHTML = build().html;
     copyRich(out.innerHTML, stripHtml(out.innerHTML));
   };
-  el("copyCaseNote")?.addEventListener("click", () => copyBox("caseNoteOutput", buildCaseNote));
+  el("copyCaseNote")?.addEventListener("click", () => {
+    if (requireFields(["issueDescription", "nextActionCase"], "Add the issue description and next action first")) copyBox("caseNoteOutput", buildCaseNote);
+  });
   el("copyRiskNote")?.addEventListener("click", () => copyBox("riskNoteOutput", buildRiskNote));
-  el("copySOAPNote")?.addEventListener("click", () => copyBox("soapOutput", buildSoapTemplate));
+  el("copySOAPNote")?.addEventListener("click", () => {
+    if (requireFields(["soapSubject", "soapObjective", "soapAssessment", "soapPlan"], "Complete Subjective, Objective, Assessment, and Plan first")) copyBox("soapOutput", buildSoapTemplate);
+  });
 
   // 6. Clear buttons
   el("clearTitle")?.addEventListener("click", () => {
+    const snapshot = collectState();
     clearFields(TITLE_IDS, renderTitle, "titleOutput");
     nextContactDp?.clear();
+    offerUndo(snapshot, "Title cleared");
   });
-  el("clearCase")?.addEventListener("click", () => clearFields(CASE_IDS, renderCase, "caseNoteOutput"));
+  el("clearCase")?.addEventListener("click", () => { const snapshot = collectState(); clearFields(CASE_IDS, renderCase, "caseNoteOutput"); offerUndo(snapshot, "Case note cleared"); });
   el("clearSoap")?.addEventListener("click", () => {
+    const snapshot = collectState();
     clearFields(SOAP_IDS, renderSoap, "soapOutput");
     soapCalDp?.clear();
     soapTime = "";
@@ -863,11 +850,14 @@ function init() {
     if (el("soapDate")) el("soapDate").value = "";
     closeSoapPicker();
     document.querySelectorAll("[data-validate]").forEach(validateField);
+    offerUndo(snapshot, "SOAP note cleared");
   });
   el("clearRisk")?.addEventListener("click", () => {
+    const snapshot = collectState();
     RISKS.forEach((_, i) => { const n = document.querySelector(`input[name="risk${i + 1}"][value="N"]`); if (n) n.checked = true; });
     renderRisk(); // keep the preview showing the (now all-N) table, consistent with every other update
     scheduleSave();
+    offerUndo(snapshot, "Risk answers cleared");
   });
 
   // 7. Initial render from restored/empty state
@@ -887,4 +877,4 @@ if (document.readyState === "loading") document.addEventListener("DOMContentLoad
 else init();
 
 // Small public surface used by the optional workspace controls.
-Object.assign(window, { collectState, applyState, saveState, toast });
+Object.assign(window, { collectState, applyState, saveState, toast, requireFields });

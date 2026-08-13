@@ -80,6 +80,7 @@
   });
 
   $("copyAll")?.addEventListener("click", () => {
+    if (!window.requireFields?.(["nextContactDate","titleAction","titleAudience","titleTier","titlePcy","issueDescription","nextActionCase","soapSubject","soapObjective","soapAssessment","soapPlan"], "Complete the required title, case, and SOAP fields first")) return;
     const ids = ["titleOutput","caseNoteOutput","riskNoteOutput","soapOutput"];
     const text = ids.map(id => $(id)?.innerText.trim()).filter(Boolean).join("\n\n──────────\n\n");
     if (!text) return window.toast?.("Add some case details first");
@@ -87,13 +88,15 @@
   });
   $("newCase")?.addEventListener("click", () => $("newCaseDialog")?.showModal());
   $("confirmNewCase")?.addEventListener("click", () => {
+    const snapshot = window.collectState?.();
     controls().forEach(x => { if (x.type === "radio") x.checked = x.value === "N"; else if (!x.classList.contains("js-nostore")) x.value = ""; });
-    localStorage.removeItem(KEY); document.dispatchEvent(new Event("icm:refresh")); window.toast?.("New case ready");
+    localStorage.removeItem(KEY); document.dispatchEvent(new Event("icm:refresh"));
+    window.toast?.("New case ready", "success", snapshot ? { label:"Undo", run:() => { window.applyState?.(snapshot); document.dispatchEvent(new Event("icm:refresh")); } } : null);
   });
   $("privacyInfo")?.addEventListener("click", () => window.toast?.("Your notes stay in this browser. Local saving is optional."));
   $("mobileSection")?.addEventListener("change", e => showSection(e.target.value, true));
   document.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", e => { e.preventDefault(); showSection(btn.dataset.nav, true); }));
-  document.addEventListener("input", () => { if (autosaveOn()) updateSaveUi("Saving…"); }, true);
+  document.addEventListener("input", (event) => { event.target?.classList?.remove("field--required-missing"); if (autosaveOn()) updateSaveUi("Saving…"); }, true);
   document.addEventListener("change", () => { if (autosaveOn()) setTimeout(() => updateSaveUi(), 400); }, true);
   updateSaveUi();
   document.body.classList.add("workspace-mode");
