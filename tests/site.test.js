@@ -13,7 +13,7 @@ test("primary SOAP controls have labels", () => {
 test("internal title and SOAP communication templates are present", () => {
   for (const value of ["IR","Strike 1","Closure","INT","EXT","Prem"]) assert.match(html, new RegExp(`value=["']${value}["']`));
   for (const pcy of ["Config","Dev","Perf","OSS","Developer","Storage","ServiceBus","WebApps","Browsers","DevOps"]) assert.match(script, new RegExp(`"${pcy}"`));
-  assert.match(html, />Communication type</);
+  assert.match(html, />Communication type\s/);
   assert.match(script, /parts\.join\(" \| "\)/);
   assert.match(script, /Communication\\nTimeline/);
 });
