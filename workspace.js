@@ -1,0 +1,73 @@
+(() => {
+  "use strict";
+  const KEY = "icm-tool-v2";
+  const PREF = "icm-tool-autosave";
+  const $ = (id) => document.getElementById(id);
+  const controls = () => [...document.querySelectorAll("main input[id], main select[id], main textarea[id]")];
+  const autosaveOn = () => localStorage.getItem(PREF) === "on";
+  const sectionIds = ["sec-title","sec-case","sec-risk","sec-soap"];
+
+  function showSection(id, moveFocus = false) {
+    sectionIds.forEach(sectionId => {
+      const section = $(sectionId); const active = sectionId === id;
+      section?.classList.toggle("workspace-active", active);
+      section?.setAttribute("aria-hidden", String(!active));
+    });
+    document.querySelectorAll("[data-nav]").forEach(btn => {
+      const active = btn.dataset.nav === id; btn.classList.toggle("active", active); btn.setAttribute("aria-selected", String(active));
+    });
+    if ($("mobileSection")) $("mobileSection").value = id;
+    if (moveFocus) $(id)?.querySelector("h2")?.focus({preventScroll:true});
+  }
+
+  function updateSaveUi(message) {
+    const on = autosaveOn();
+    $("toggleAutosave")?.setAttribute("aria-pressed", String(on));
+    if ($("toggleAutosave")) $("toggleAutosave").textContent = on ? "Disable local save" : "Enable local save";
+    if ($("saveStatus")) $("saveStatus").textContent = message || (on ? "Draft saved on this device" : "Local saving is off");
+    $("saveDot")?.classList.toggle("on", on);
+  }
+
+  $("toggleAutosave")?.addEventListener("click", () => {
+    if (autosaveOn()) {
+      localStorage.removeItem(PREF); localStorage.removeItem(KEY); updateSaveUi("Local draft removed");
+    } else {
+      localStorage.setItem(PREF, "on"); window.saveState?.(); updateSaveUi();
+    }
+  });
+
+  $("exportDraft")?.addEventListener("click", () => {
+    const data = window.collectState?.() || {};
+    const blob = new Blob([JSON.stringify({ version: 3, exportedAt: new Date().toISOString(), data }, null, 2)], {type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `icm-draft-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+  });
+  $("importDraft")?.addEventListener("click", () => $("importDraftFile")?.click());
+  $("importDraftFile")?.addEventListener("change", async (e) => {
+    try {
+      const parsed = JSON.parse(await e.target.files[0].text());
+      window.applyState?.(parsed.data || parsed); document.dispatchEvent(new Event("icm:refresh")); window.toast?.("Draft imported");
+    } catch { window.toast?.("That draft file could not be read"); }
+    e.target.value = "";
+  });
+
+  $("copyAll")?.addEventListener("click", () => {
+    const ids = ["titleOutput","caseNoteOutput","riskNoteOutput","soapOutput"];
+    const text = ids.map(id => $(id)?.innerText.trim()).filter(Boolean).join("\n\n──────────\n\n");
+    if (!text) return window.toast?.("Add some case details first");
+    navigator.clipboard.writeText(text).then(() => window.toast?.("All notes copied"));
+  });
+  $("newCase")?.addEventListener("click", () => $("newCaseDialog")?.showModal());
+  $("confirmNewCase")?.addEventListener("click", () => {
+    controls().forEach(x => { if (x.type === "radio") x.checked = x.value === "N"; else if (!x.classList.contains("js-nostore")) x.value = ""; });
+    localStorage.removeItem(KEY); document.dispatchEvent(new Event("icm:refresh")); window.toast?.("New case ready");
+  });
+  $("privacyInfo")?.addEventListener("click", () => window.toast?.("Your notes stay in this browser. Local saving is optional."));
+  $("mobileSection")?.addEventListener("change", e => showSection(e.target.value, true));
+  document.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", e => { e.preventDefault(); showSection(btn.dataset.nav, true); }));
+  document.addEventListener("input", () => { if (autosaveOn()) updateSaveUi("Saving…"); }, true);
+  document.addEventListener("change", () => { if (autosaveOn()) setTimeout(() => updateSaveUi(), 400); }, true);
+  updateSaveUi();
+  document.body.classList.add("workspace-mode");
+  document.querySelectorAll("main section > h2").forEach(h => h.tabIndex = -1);
+  showSection("sec-title");
+})();

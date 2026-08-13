@@ -4,12 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Internal Case Management</title>
+  <meta name="description" content="Create consistent Azure support case titles, case notes, risk reviews, and SOAP notes without sending customer data to a server." />
+  <meta name="theme-color" content="#1468d4" />
+  <meta property="og:title" content="Internal Case Management" />
+  <meta property="og:description" content="A private, browser-based workspace for consistent Azure support notes." />
   <link rel="icon" href="favicon.ico" />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 
   <!-- Date picker (Air Datepicker — self-hosted so it works on CDN-blocked networks) -->
   <link rel="stylesheet" href="vendor/air-datepicker.css">
@@ -25,11 +24,28 @@
          style="background:linear-gradient(135deg,var(--color-brand-500),var(--color-brand-600) 50%,var(--color-brand-700));">
       <div class="pointer-events-none absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/5"></div>
       <div class="pointer-events-none absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-white/5"></div>
+      <p class="relative mb-1 text-xs font-bold uppercase tracking-[0.18em] text-white/70">Support note workspace</p>
       <h1 class="relative text-2xl font-extrabold tracking-tight text-white drop-shadow sm:text-3xl">
         Internal Case Management
       </h1>
+      <p class="relative mx-auto mt-2 max-w-xl text-sm text-white/80">Build consistent case notes. Your content stays in this browser.</p>
     </div>
   </header>
+
+  <section class="workspace-bar mx-auto mt-4 max-w-4xl" aria-label="Workspace controls">
+    <div>
+      <div class="flex items-center gap-2 text-sm font-bold text-brand-900"><span id="saveDot" class="save-dot"></span><span id="saveStatus">Local saving is off</span></div>
+      <p class="mt-0.5 text-xs text-slate-500">Nothing is uploaded by this website.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button>
+      <button id="exportDraft" type="button" class="btn btn-compact btn-ghost">Export</button>
+      <button id="importDraft" type="button" class="btn btn-compact btn-ghost">Import</button>
+      <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
+      <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
+      <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
+    </div>
+  </section>
 
   <!-- ══ Sticky pill nav (sm+) ══ -->
   <nav class="sticky-nav" aria-label="Jump to section">
@@ -41,6 +57,12 @@
       <span class="sticky-nav-indicator" aria-hidden="true"></span>
     </div>
   </nav>
+  <label class="mobile-section-nav mx-auto mt-4 max-w-4xl" for="mobileSection">
+    <span class="label">Working on</span>
+    <select id="mobileSection" class="field">
+      <option value="sec-title">Title Generator</option><option value="sec-case">Case Note</option><option value="sec-risk">Risk Note</option><option value="sec-soap">SOAP Note</option>
+    </select>
+  </label>
 
   <!-- ══ Cards ══ -->
   <main class="mx-auto mt-4 grid max-w-4xl grid-cols-1 gap-6">
@@ -73,10 +95,10 @@
       </div>
 
       <div class="mt-5 flex flex-wrap gap-3">
-        <button id="copyTitle" class="btn btn-primary">Copy</button>
-        <button id="clearTitle" class="btn btn-ghost">Clear</button>
+        <button id="copyTitle" type="button" class="btn btn-primary">Copy</button>
+        <button id="clearTitle" type="button" class="btn btn-ghost">Clear</button>
       </div>
-      <div id="titleOutput" class="output-box font-mono" data-placeholder="Generated title appears here…"></div>
+      <div id="titleOutput" class="output-box font-mono" data-placeholder="Generated title appears here…" aria-live="polite"></div>
     </section>
 
     <!-- ── Case Note ── -->
@@ -110,7 +132,7 @@
         <button id="copyCaseNote" class="btn btn-primary">Copy</button>
         <button id="clearCase" class="btn btn-ghost">Clear</button>
       </div>
-      <div id="caseNoteOutput" class="output-box" data-placeholder="Generated case note appears here…" contenteditable="false"></div>
+      <div id="caseNoteOutput" class="output-box" data-placeholder="Generated case note appears here…" contenteditable="false" aria-live="polite"></div>
     </section>
 
     <!-- ── Risk Note ── -->
@@ -125,7 +147,7 @@
         <button id="copyRiskNote" class="btn btn-primary">Copy</button>
         <button id="clearRisk" class="btn btn-ghost">Clear</button>
       </div>
-      <div id="riskNoteOutput" class="output-box overflow-x-auto" data-placeholder="Generated risk note appears here…" contenteditable="false"></div>
+      <div id="riskNoteOutput" class="output-box overflow-x-auto" data-placeholder="Generated risk note appears here…" contenteditable="false" aria-live="polite"></div>
     </section>
 
     <!-- ── SOAP Note ── -->
@@ -133,10 +155,12 @@
       <h2 id="soap-heading" class="section-title">SOAP Note</h2>
 
       <h3 class="sub-title">S – Subjective / Issue Description</h3>
-      <textarea id="soapSubject" class="field" placeholder="SUMMARY — What is the customer experiencing?"></textarea>
+      <label class="label" for="soapSubject">Customer experience summary</label>
+      <textarea id="soapSubject" class="field" placeholder="What is the customer experiencing?"></textarea>
 
       <h3 class="sub-title">O – Objective / Environment</h3>
-      <textarea id="soapObjective" class="field" placeholder="OBJECTIVE — What is the goal? What are we going to do?"></textarea>
+      <label class="label" for="soapObjective">Goal and intended outcome</label>
+      <textarea id="soapObjective" class="field" placeholder="What is the goal? What are we going to do?"></textarea>
 
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -219,12 +243,21 @@
         <button id="copySOAPNote" class="btn btn-primary">Copy</button>
         <button id="clearSoap" class="btn btn-ghost">Clear</button>
       </div>
-      <div id="soapOutput" class="output-box min-h-56" data-placeholder="Generated SOAP note appears here…" contenteditable="false"></div>
+      <div id="soapOutput" class="output-box min-h-56" data-placeholder="Generated SOAP note appears here…" contenteditable="false" aria-live="polite"></div>
     </section>
   </main>
 
+  <dialog id="newCaseDialog" class="confirm-dialog" aria-labelledby="newCaseTitle">
+    <form method="dialog">
+      <h2 id="newCaseTitle" class="text-lg font-extrabold text-brand-900">Start a new case?</h2>
+      <p class="mt-2 text-sm text-slate-600">This clears every field and the locally saved draft. Export first if you may need it later.</p>
+      <div class="mt-5 flex justify-end gap-2"><button value="cancel" class="btn btn-ghost">Cancel</button><button id="confirmNewCase" value="confirm" class="btn btn-danger">Clear everything</button></div>
+    </form>
+  </dialog>
+
   <footer class="mx-auto mt-8 max-w-4xl text-center text-sm text-slate-500/70">
-    Credit: Robert Van
+    <span>Built for support engineers · Credit: Robert Van</span>
+    <button id="privacyInfo" type="button" class="ml-2 underline">Privacy</button>
   </footer>
 
   <!-- Toast container -->
@@ -234,5 +267,6 @@
   <script src="vendor/air-datepicker.js"></script>
   <!-- App logic -->
   <script src="script.js" defer></script>
+  <script src="workspace.js" defer></script>
 </body>
 </html>
