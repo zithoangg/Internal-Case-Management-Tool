@@ -39,6 +39,7 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <button id="toggleAutosave" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Enable local save</button>
+      <button id="themeToggle" type="button" class="btn btn-compact btn-ghost" aria-pressed="false">Dark mode</button>
       <button id="exportDraft" type="button" class="btn btn-compact btn-ghost">Export</button>
       <button id="importDraft" type="button" class="btn btn-compact btn-ghost">Import</button>
       <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
@@ -73,24 +74,30 @@
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label class="label" for="nextContactDate">Next contact date</label>
+          <label class="label" for="nextContactDate">Date</label>
           <input id="nextContactDate" type="text" class="field date-like" placeholder="Select date" autocomplete="off" readonly />
         </div>
         <div>
-          <label class="label" for="serviceLevel">Service level</label>
-          <select id="serviceLevel" class="field" aria-label="Service level"></select>
+          <label class="label" for="titleAction">Action</label>
+          <select id="titleAction" class="field">
+            <option value="IR">IR</option><option value="F">F</option><option value="Strike 1">Strike 1</option><option value="Strike 2">Strike 2</option><option value="Strike 3">Strike 3</option><option value="Closure">Closure</option>
+          </select>
         </div>
         <div>
-          <label class="label" for="pcy">PCY</label>
-          <select id="pcy" class="field" aria-label="PCY"></select>
+          <label class="label" for="titleAudience">Engagement</label>
+          <select id="titleAudience" class="field"><option value="INT">INT</option><option value="EXT">EXT</option></select>
         </div>
         <div>
-          <label class="label" for="nextActionTitle">Next action</label>
-          <input id="nextActionTitle" type="text" class="field" placeholder="e.g., Follow-up email with logs" />
+          <label class="label" for="titleTier">Support tier</label>
+          <select id="titleTier" class="field"><option value="BC">BC</option><option value="Prem">Prem</option></select>
         </div>
         <div class="sm:col-span-2">
-          <label class="label" for="icmLinked">ICM linked (optional)</label>
-          <input id="icmLinked" type="text" class="field" placeholder="e.g., 1234567" />
+          <label class="label" for="titleWorkstream">App Service workstream</label>
+          <select id="titleWorkstream" class="field"><option value="Config">Config</option><option value="Dev">Dev</option><option value="Perf">Perf</option></select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label" for="titleNotes">Additional notes (optional)</label>
+          <input id="titleNotes" type="text" class="field" placeholder="e.g., custom domain deletion blocked" />
         </div>
       </div>
 
@@ -238,6 +245,14 @@
       <h3 class="sub-title">P – Plan</h3>
       <label class="label" for="soapPlan">Outline action plan</label>
       <textarea id="soapPlan" class="field" placeholder="PLAN — Next customer action"></textarea>
+
+      <h3 class="sub-title">Communication</h3>
+      <label class="label" for="soapTimeline">Timeline</label>
+      <textarea id="soapTimeline" class="field" placeholder="e.g., 08/13: AppLens review completed…"></textarea>
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div><label class="label" for="soapNextContact">Next Contact</label><textarea id="soapNextContact" class="field" placeholder="Upon receipt of Product Group findings."></textarea></div>
+        <div><label class="label" for="soapNextAction">Next Action</label><textarea id="soapNextAction" class="field" placeholder="Await PG review…"></textarea></div>
+      </div>
 
       <div class="mt-5 flex flex-wrap gap-3">
         <button id="copySOAPNote" class="btn btn-primary">Copy</button>

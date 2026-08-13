@@ -478,3 +478,34 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
   .mobile-section-nav { display:block; }
   .workspace-bar .btn { flex:1 1 auto; }
 }
+
+/* Dark theme */
+html[data-theme="dark"] { color-scheme:dark; }
+html[data-theme="dark"] body { color:#e5edf8; background:linear-gradient(160deg,#070b12 0%,#0b1220 38%,#0d1728 100%); }
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .workspace-bar { background:rgba(15,23,42,.92); border-color:rgba(96,165,250,.16); box-shadow:0 12px 36px rgba(0,0,0,.3); }
+html[data-theme="dark"] .section-title { color:#f1f5f9; }
+html[data-theme="dark"] .label { color:#bfdbfe; }
+html[data-theme="dark"] .sub-title { color:#60a5fa; }
+html[data-theme="dark"] .field { color:#e5edf8; background:#111c2f; border-color:rgba(148,163,184,.22); }
+html[data-theme="dark"] .field::placeholder { color:#64748b; }
+html[data-theme="dark"] .output-box { color:#dbeafe; background:rgba(8,15,27,.9); border-color:rgba(96,165,250,.2); }
+html[data-theme="dark"] .btn-ghost { color:#bfdbfe; background:#111c2f; border-color:rgba(96,165,250,.25); }
+html[data-theme="dark"] .btn-ghost:hover { background:#17233a; border-color:rgba(96,165,250,.55); }
+html[data-theme="dark"] .btn-danger { color:#fca5a5; background:#1d1720; border-color:rgba(248,113,113,.25); }
+html[data-theme="dark"] .sticky-nav-inner { background:rgba(15,23,42,.9); border-color:rgba(96,165,250,.16); }
+html[data-theme="dark"] .sticky-nav-indicator { background:#1e293b; box-shadow:0 1px 8px rgba(0,0,0,.4); }
+html[data-theme="dark"] .sticky-nav-pill { color:#94a3b8; }
+html[data-theme="dark"] .sticky-nav-pill.active { color:#93c5fd; }
+html[data-theme="dark"] .risk-row { background:rgba(17,28,47,.8); border-color:rgba(148,163,184,.12); }
+html[data-theme="dark"] .risk-row:has(input.yn-radio[value="Y"]:checked) { background:rgba(120,53,15,.25); border-color:rgba(245,158,11,.45); }
+html[data-theme="dark"] .custom-select-trigger,
+html[data-theme="dark"] .cs-panel,
+html[data-theme="dark"] .dt-popover,
+html[data-theme="dark"] .air-datepicker { color:#e5edf8; background:#111c2f; border-color:rgba(148,163,184,.22); }
+html[data-theme="dark"] .cs-option { color:#cbd5e1; }
+html[data-theme="dark"] .cs-option:hover,
+html[data-theme="dark"] .cs-option:focus { color:#bfdbfe; background:rgba(59,130,246,.14); }
+html[data-theme="dark"] .confirm-dialog { color:#e5edf8; background:#111827; }
+html[data-theme="dark"] .text-slate-500 { color:#94a3b8; }
+html[data-theme="dark"] footer { color:#94a3b8; }

@@ -2,6 +2,7 @@
   "use strict";
   const KEY = "icm-tool-v2";
   const PREF = "icm-tool-autosave";
+  const THEME_PREF = "icm-tool-theme";
   const $ = (id) => document.getElementById(id);
   const controls = () => [...document.querySelectorAll("main input[id], main select[id], main textarea[id]")];
   const autosaveOn = () => localStorage.getItem(PREF) === "on";
@@ -27,6 +28,20 @@
     if ($("saveStatus")) $("saveStatus").textContent = message || (on ? "Draft saved on this device" : "Local saving is off");
     $("saveDot")?.classList.toggle("on", on);
   }
+
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    const dark = theme === "dark";
+    $("themeToggle")?.setAttribute("aria-pressed", String(dark));
+    if ($("themeToggle")) $("themeToggle").textContent = dark ? "Light mode" : "Dark mode";
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0b1220" : "#1468d4");
+  }
+  const initialTheme = localStorage.getItem(THEME_PREF) || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(initialTheme);
+  $("themeToggle")?.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_PREF, next); applyTheme(next);
+  });
 
   $("toggleAutosave")?.addEventListener("click", () => {
     if (autosaveOn()) {
