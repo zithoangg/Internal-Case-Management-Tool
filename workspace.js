@@ -17,6 +17,14 @@
     document.querySelectorAll("[data-nav]").forEach(btn => {
       const active = btn.dataset.nav === id; btn.classList.toggle("active", active); btn.setAttribute("aria-selected", String(active));
     });
+    requestAnimationFrame(() => {
+      const active = document.querySelector(`[data-nav="${id}"]`);
+      const indicator = document.querySelector(".sticky-nav-indicator");
+      if (active && indicator) {
+        indicator.style.width = `${active.offsetWidth}px`;
+        indicator.style.transform = `translateX(${active.offsetLeft}px)`;
+      }
+    });
     if ($("mobileSection")) $("mobileSection").value = id;
     if (moveFocus) $(id)?.querySelector("h2")?.focus({preventScroll:true});
   }

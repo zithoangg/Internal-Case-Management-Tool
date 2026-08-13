@@ -770,6 +770,8 @@ function initScrollSpy() {
   let scrollLockId = null;
 
   function updateActive() {
+    // Focused workspace navigation owns the active tab once sections become panels.
+    if (document.body.classList.contains("workspace-mode")) return;
     if (scrollLockId !== null) return; // suppress during programmatic scroll
     let activeId = sectionIds[0];
     for (const s of sections) {
