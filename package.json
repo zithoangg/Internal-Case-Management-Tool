@@ -5,7 +5,8 @@
   "description": "Internal note-generator for Azure support engineers (Title / Case / Risk / SOAP).",
   "scripts": {
     "build": "tailwindcss -i ./src/input.css -o ./app.css --minify",
-    "watch": "tailwindcss -i ./src/input.css -o ./app.css --watch"
+    "watch": "tailwindcss -i ./src/input.css -o ./app.css --watch",
+    "test": "node --test tests/site.test.js"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.0",

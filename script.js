@@ -27,8 +27,8 @@ const RISKS = [
 
 const SERVICE_LEVELS = ["BC", "Unified"];
 const PCY_OPTIONS = [
-  "AppService_Config", "AppService_Dev", "AppService_Perf", "AppService_OSS",
-  "Developer_Developer", "Developer_Storage", "Developer_ServiceBus",
+  "Config", "Dev", "Perf", "OSS",
+  "Developer", "Storage", "ServiceBus",
   "WebApps", "Browsers", "DevOps",
 ];
 
@@ -84,25 +84,21 @@ function parseDateTime(s) {
 }
 
 /* ── Note building blocks (inline styles → survive paste into Outlook/ICM/Teams) ── */
-const NOTE_WRAP_OPEN = '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.5;color:#1a1a1a;">';
 const NOTE_WRAP_CLOSE = "</div>";
-const head = (t) => `<p style="margin:0 0 4px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
-const body = (v) => `<p style="margin:0 0 14px 0;">${nl2br(v)}</p>`;
-const line = (label, v) => `<p style="margin:0 0 2px 0;"><strong>${escapeHtml(label)}:</strong> ${nl2br(v)}</p>`;
+const compactOutput = () => document.documentElement.dataset.outputStyle === "compact";
+const noteWrapOpen = () => `<div style="font-family:Segoe UI,Arial,sans-serif;font-size:${compactOutput() ? 13 : 14}px;line-height:${compactOutput() ? 1.35 : 1.5};color:#1a1a1a;">`;
+const head = (t) => `<p style="margin:0 0 ${compactOutput() ? 2 : 4}px 0;font-weight:bold;">${escapeHtml(t)}</p>`;
+const majorHead = (t) => `<p style="margin:0 0 ${compactOutput() ? 3 : 6}px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
+const body = (v) => `<p style="margin:0 0 ${compactOutput() ? 7 : 14}px 0;">${nl2br(v)}</p>`;
+const line = (label, v) => `<p style="margin:0 0 ${compactOutput() ? 1 : 2}px 0;"><strong>${escapeHtml(label)}:</strong> ${nl2br(v)}</p>`;
 
 /* ════════════════════════════════════════════════════════════════
    Generators — each returns { html, plain } (title returns a string)
    ════════════════════════════════════════════════════════════════ */
 function buildTitle() {
   const date = val("nextContactDate");
-  const sl = val("serviceLevel");
-  const pcy = val("pcy");
-  const action = val("nextActionTitle");
-  const icm = val("icmLinked");
-  let title = `[${sl}] - [${pcy}] - Next contact: ${date}`;
-  if (action) title += ` - ${action}`;
-  if (icm) title += ` - ICM: ${icm}`;
-  return title;
+  const parts = [val("titleAction"), val("titleAudience"), val("titleTier"), val("titlePcy"), val("titleNotes")].filter(Boolean);
+  return `${date ? `${date} ` : ""}${parts.join(" | ")}`;
 }
 
 function buildCaseNote() {
@@ -114,64 +110,15 @@ function buildCaseNote() {
     ["Next Contact", val("nextContactCase")],
     ["Next Action", val("nextActionCase")],
   ];
-  const html = NOTE_WRAP_OPEN + fields.map(([l, v]) => head(l) + body(v)).join("") + NOTE_WRAP_CLOSE;
+  const html = noteWrapOpen() + fields.map(([l, v]) => head(l) + body(v)).join("") + NOTE_WRAP_CLOSE;
   const plain = fields.map(([l, v]) => `${l}:\n${v}\n`).join("\n");
   return { html, plain };
 }
 
-function buildSoapNote() {
-  const subject = val("soapSubject");
-  const objective = val("soapObjective");
-  const subId = val("soapSubscriptionId");
-  const resId = val("soapResourceId");
-  const timeframe = val("soapTimeframe");
-  const isFqr = val("soapIsFqr");
-  const possFdr = val("soapPossibleFdr");
-  const fdrExplain = val("soapFdrExplain");
-  const ascViewed = val("soapAscViewed");
-  const ascInsights = val("soapAscInsights");
-  const ascDetails = val("soapAscDetails");
-  const assessment = val("soapAssessment");
-  const plan = val("soapPlan");
-
-  let html = NOTE_WRAP_OPEN;
-  html += head("S – Subjective / Issue Description") + body(subject);
-  html += head("O – Objective / Environment");
-  if (objective) html += body(objective);
-  html += line("Subscription ID", subId);
-  html += line("Affected Resource ID", resId);
-  html += line("Timeframe of Issue Observation", timeframe);
-  html += line("Is FQR Sent", isFqr);
-  html += line("Possible FDR", possFdr);
-  if (fdrExplain) html += line("FDR explanation", fdrExplain);
-  html += line("Has ASC Been Viewed/Used", ascViewed);
-  html += line("Any Insights Generated in ASC", ascInsights);
-  if (ascDetails) html += line("ASC Insights Details", ascDetails);
-  html += '<p style="margin:0 0 14px 0;"></p>';
-  html += head("A – Analysis") + body(assessment);
-  html += head("P – Plan") + body(plan);
-  html += NOTE_WRAP_CLOSE;
-
-  let plain = `S – Subjective / Issue Description:\n${subject}\n\n`;
-  plain += "O – Objective / Environment:\n";
-  if (objective) plain += `${objective}\n`;
-  plain += `Subscription ID: ${subId}\n`;
-  plain += `Affected Resource ID: ${resId}\n`;
-  plain += `Timeframe of Issue Observation: ${timeframe}\n`;
-  plain += `Is FQR Sent: ${isFqr}\n`;
-  plain += `Possible FDR: ${possFdr}\n`;
-  if (fdrExplain) plain += `FDR explanation: ${fdrExplain}\n`;
-  plain += `Has ASC Been Viewed/Used: ${ascViewed}\n`;
-  plain += `Any Insights Generated in ASC: ${ascInsights}\n`;
-  if (ascDetails) plain += `ASC Insights Details: ${ascDetails}\n`;
-  plain += `\nA – Analysis:\n${assessment}\n\n`;
-  plain += `P – Plan:\n${plan}\n`;
-  return { html, plain };
-}
-
 function buildRiskNote() {
-  const cell = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;vertical-align:top;";
-  const th = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;";
+  const pad = compactOutput() ? "3px 5px" : "6px 8px";
+  const cell = `padding:${pad};border:1px solid #d9e2f0;text-align:left;vertical-align:top;`;
+  const th = `padding:${pad};border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;`;
   let html = `<table style="border-collapse:collapse;width:100%;font-family:Segoe UI,Arial,sans-serif;font-size:13px;color:#1a1a1a;">`;
   html += `<thead><tr><th style="${th}">No.</th><th style="${th}">Risk</th><th style="${th}">Description</th><th style="${th}">Y/N</th></tr></thead><tbody>`;
   let plain = "";
@@ -186,6 +133,31 @@ function buildRiskNote() {
   return { html, plain };
 }
 
+function buildSoapTemplate() {
+  const objectiveDetails = [
+    ["Subscription", val("soapSubscriptionId")], ["Affected Resource ID", val("soapResourceId")],
+    ["Timeframe of Issue Observation", val("soapTimeframe")], ["Is FQR Sent", val("soapIsFqr")],
+    ["Possible FDR", val("soapPossibleFdr")], ["FDR explanation", val("soapFdrExplain")],
+    ["Has ASC Been Viewed/Used", val("soapAscViewed")], ["Any Insights Generated in ASC", val("soapAscInsights")],
+    ["ASC Insights Details", val("soapAscDetails")],
+  ];
+  let html = noteWrapOpen() + majorHead("Issue Description");
+  html += head("S – Subjective") + body(val("soapSubject"));
+  html += head("O – Objective") + body(val("soapObjective"));
+  objectiveDetails.filter(([,v]) => v).forEach(([label,value]) => { html += line(label, value); });
+  html += '<p style="margin:0 0 14px 0;"></p>';
+  html += head("A – Assessment") + body(val("soapAssessment"));
+  html += head("P – Plan") + body(val("soapPlan"));
+  html += majorHead("Communication") + head("Timeline") + body(val("soapTimeline"));
+  html += head("Next Contact") + body(val("soapNextContact"));
+  html += head("Next Action") + body(val("soapNextAction")) + NOTE_WRAP_CLOSE;
+  let plain = `Issue Description\nS – Subjective:\n${val("soapSubject")}\n\nO – Objective:\n${val("soapObjective")}\n`;
+  objectiveDetails.filter(([,v]) => v).forEach(([label,value]) => { plain += `${label}: ${value}\n`; });
+  plain += `\nA – Assessment:\n${val("soapAssessment")}\n\nP – Plan:\n${val("soapPlan")}\n\n`;
+  plain += `Communication\nTimeline:\n${val("soapTimeline")}\n\nNext Contact:\n${val("soapNextContact")}\n\nNext Action:\n${val("soapNextAction")}\n`;
+  return { html, plain };
+}
+
 /* ════════════════════════════════════════════════════════════════
    Live preview rendering
    ════════════════════════════════════════════════════════════════ */
@@ -194,22 +166,22 @@ function renderTitle() {
   if (!out) return;
   const t = buildTitle();
   // show empty (→ placeholder) only when no real input was given
-  const meaningful = val("nextActionTitle") || val("nextContactDate") || val("icmLinked");
+  const meaningful = TITLE_IDS.some((id) => val(id));
   out.textContent = meaningful ? t : "";
 }
-const TITLE_IDS = ["nextContactDate", "serviceLevel", "pcy", "nextActionTitle", "icmLinked"];
+const TITLE_IDS = ["nextContactDate", "titleAction", "titleAudience", "titleTier", "titlePcy", "titleNotes"];
 const CASE_IDS = ["issueDescription", "icmNeeded", "nextContactCase", "troubleshootingDone", "communicationTimeline", "nextActionCase"];
-const SOAP_IDS = ["soapSubject", "soapObjective", "soapSubscriptionId", "soapResourceId", "soapTimeframe", "soapIsFqr", "soapPossibleFdr", "soapFdrExplain", "soapAscViewed", "soapAscInsights", "soapAscDetails", "soapAssessment", "soapPlan"];
+const SOAP_IDS = ["soapSubject", "soapObjective", "soapSubscriptionId", "soapResourceId", "soapTimeframe", "soapIsFqr", "soapPossibleFdr", "soapFdrExplain", "soapAscViewed", "soapAscInsights", "soapAscDetails", "soapAssessment", "soapPlan", "soapTimeline", "soapNextContact", "soapNextAction"];
 const anyFilled = (ids) => ids.some((id) => val(id));
 
 function renderCase() { const o = el("caseNoteOutput"); if (o) o.innerHTML = anyFilled(CASE_IDS) ? buildCaseNote().html : ""; }
 function renderRisk() { const o = el("riskNoteOutput"); if (o) o.innerHTML = buildRiskNote().html; }
-function renderSoap() { const o = el("soapOutput"); if (o) o.innerHTML = anyFilled(SOAP_IDS) ? buildSoapNote().html : ""; }
+function renderSoap() { const o = el("soapOutput"); if (o) o.innerHTML = anyFilled(SOAP_IDS) ? buildSoapTemplate().html : ""; }
 
 /* ════════════════════════════════════════════════════════════════
    Clipboard + toast
    ════════════════════════════════════════════════════════════════ */
-function toast(msg, type = "success") {
+function toast(msg, type = "success", action = null) {
   const wrap = el("toasts");
   if (!wrap) { alert(msg); return; }
   const t = document.createElement("div");
@@ -217,14 +189,43 @@ function toast(msg, type = "success") {
   t.style.background = type === "error"
     ? "linear-gradient(135deg,#ef4444,#dc2626)"
     : "linear-gradient(135deg,var(--color-brand-500),var(--color-brand-600))";
-  t.textContent = msg;
+  const label = document.createElement("span");
+  label.textContent = msg;
+  t.appendChild(label);
+  if (action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ml-3 rounded-lg bg-white/20 px-2 py-1 font-bold underline";
+    button.textContent = action.label;
+    button.addEventListener("click", () => { action.run(); t.remove(); });
+    t.appendChild(button);
+  }
   wrap.appendChild(t);
   setTimeout(() => {
     t.style.transition = "opacity .3s, transform .3s";
     t.style.opacity = "0";
     t.style.transform = "translateY(8px)";
     setTimeout(() => t.remove(), 300);
-  }, 2200);
+  }, action ? 6000 : 2200);
+}
+
+function offerUndo(snapshot, message = "Fields cleared") {
+  toast(message, "success", { label: "Undo", run: () => {
+    applyState(snapshot);
+    document.dispatchEvent(new Event("icm:refresh"));
+    toast("Restored");
+  }});
+}
+
+function requireFields(ids, message) {
+  const missing = ids.map(el).filter((field) => field && !field.value.trim());
+  document.querySelectorAll(".field--required-missing").forEach((field) => field.classList.remove("field--required-missing"));
+  if (!missing.length) return true;
+  missing.forEach((field) => field.classList.add("field--required-missing"));
+  const first = missing[0];
+  (el(`${first.id}--btn`) || first).focus();
+  toast(message, "error");
+  return false;
 }
 
 function legacyCopy(text) {
@@ -271,9 +272,11 @@ function collectState() {
   return data;
 }
 function saveState() {
+  if (localStorage.getItem("icm-tool-autosave") !== "on") return;
   try { localStorage.setItem(STORE_KEY, JSON.stringify(collectState())); } catch (e) { /* quota / private mode */ }
 }
 function loadState() {
+  if (localStorage.getItem("icm-tool-autosave") !== "on") return null;
   try { return JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (e) { return null; }
 }
 function applyState(s) {
@@ -321,9 +324,9 @@ function renderRiskRows() {
         <div class="mt-0.5 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
       </div>
       <div class="flex items-center justify-end gap-2">
-        <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y">
+        <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y" aria-label="${escapeHtml(r.name)}: Yes">
         <label for="risk${n}_y" class="circle" title="Yes">Y</label>
-        <input class="yn-radio" type="radio" id="risk${n}_n" name="risk${n}" value="N" checked>
+        <input class="yn-radio" type="radio" id="risk${n}_n" name="risk${n}" value="N" checked aria-label="${escapeHtml(r.name)}: No">
         <label for="risk${n}_n" class="circle" title="No">N</label>
       </div>
     </div>`;
@@ -749,6 +752,8 @@ function initScrollSpy() {
   let scrollLockId = null;
 
   function updateActive() {
+    // Focused workspace navigation owns the active tab once sections become panels.
+    if (document.body.classList.contains("workspace-mode")) return;
     if (scrollLockId !== null) return; // suppress during programmatic scroll
     let activeId = sectionIds[0];
     for (const s of sections) {
@@ -784,9 +789,8 @@ function initScrollSpy() {
 
 function init() {
   // 1. Build DOM from data
-  fillSelect("serviceLevel", SERVICE_LEVELS);
-  fillSelect("pcy", PCY_OPTIONS);
   renderRiskRows();
+  fillSelect("titlePcy", PCY_OPTIONS);
 
   // 2. Date pickers (Air Datepicker)
   setupPickers();
@@ -810,6 +814,7 @@ function init() {
 
   // 5. Copy buttons (one-click: copies the live preview, including any manual edits)
   el("copyTitle")?.addEventListener("click", () => {
+    if (!requireFields(["nextContactDate", "titleAction", "titleAudience", "titleTier", "titlePcy"], "Complete the required title fields first")) return;
     // Show the generated title in the preview box so what's copied is also visible.
     renderTitle();
     const out = el("titleOutput");
@@ -823,17 +828,24 @@ function init() {
     if (!out.innerHTML.trim()) out.innerHTML = build().html;
     copyRich(out.innerHTML, stripHtml(out.innerHTML));
   };
-  el("copyCaseNote")?.addEventListener("click", () => copyBox("caseNoteOutput", buildCaseNote));
+  el("copyCaseNote")?.addEventListener("click", () => {
+    if (requireFields(["issueDescription", "nextActionCase"], "Add the issue description and next action first")) copyBox("caseNoteOutput", buildCaseNote);
+  });
   el("copyRiskNote")?.addEventListener("click", () => copyBox("riskNoteOutput", buildRiskNote));
-  el("copySOAPNote")?.addEventListener("click", () => copyBox("soapOutput", buildSoapNote));
+  el("copySOAPNote")?.addEventListener("click", () => {
+    if (requireFields(["soapSubject", "soapObjective", "soapAssessment", "soapPlan"], "Complete Subjective, Objective, Assessment, and Plan first")) copyBox("soapOutput", buildSoapTemplate);
+  });
 
   // 6. Clear buttons
   el("clearTitle")?.addEventListener("click", () => {
+    const snapshot = collectState();
     clearFields(TITLE_IDS, renderTitle, "titleOutput");
     nextContactDp?.clear();
+    offerUndo(snapshot, "Title cleared");
   });
-  el("clearCase")?.addEventListener("click", () => clearFields(CASE_IDS, renderCase, "caseNoteOutput"));
+  el("clearCase")?.addEventListener("click", () => { const snapshot = collectState(); clearFields(CASE_IDS, renderCase, "caseNoteOutput"); offerUndo(snapshot, "Case note cleared"); });
   el("clearSoap")?.addEventListener("click", () => {
+    const snapshot = collectState();
     clearFields(SOAP_IDS, renderSoap, "soapOutput");
     soapCalDp?.clear();
     soapTime = "";
@@ -841,11 +853,14 @@ function init() {
     if (el("soapDate")) el("soapDate").value = "";
     closeSoapPicker();
     document.querySelectorAll("[data-validate]").forEach(validateField);
+    offerUndo(snapshot, "SOAP note cleared");
   });
   el("clearRisk")?.addEventListener("click", () => {
+    const snapshot = collectState();
     RISKS.forEach((_, i) => { const n = document.querySelector(`input[name="risk${i + 1}"][value="N"]`); if (n) n.checked = true; });
     renderRisk(); // keep the preview showing the (now all-N) table, consistent with every other update
     scheduleSave();
+    offerUndo(snapshot, "Risk answers cleared");
   });
 
   // 7. Initial render from restored/empty state
@@ -853,7 +868,16 @@ function init() {
 
   // 8. Sidebar navigation scroll spy
   initScrollSpy();
+
+  document.addEventListener("icm:refresh", () => {
+    hydratePickers();
+    document.querySelectorAll("select.field").forEach((s) => s.dispatchEvent(new Event("change", { bubbles: true })));
+    renderTitle(); renderCase(); renderRisk(); renderSoap();
+  });
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
 else init();
+
+// Small public surface used by the optional workspace controls.
+Object.assign(window, { collectState, applyState, saveState, toast, requireFields });
