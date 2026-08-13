@@ -461,6 +461,10 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
 
 /* v3 workspace */
 .workspace-bar { display:flex; align-items:center; justify-content:space-between; gap:1rem; border:1px solid rgba(255,255,255,.9); border-radius:1rem; background:rgba(255,255,255,.84); padding:1rem 1.25rem; box-shadow:0 6px 24px rgba(12,24,40,.08); backdrop-filter:blur(20px); }
+.theme-icon-button { position:absolute; z-index:10; top:.75rem; right:.75rem; display:grid; place-items:center; width:2.5rem; height:2.5rem; border:1px solid rgba(255,255,255,.28); border-radius:999px; color:#fff; background:rgba(7,18,38,.18); font-size:1.25rem; line-height:1; cursor:pointer; backdrop-filter:blur(12px); transition:background .2s,transform .15s,border-color .2s; }
+.theme-icon-button:hover { background:rgba(7,18,38,.32); border-color:rgba(255,255,255,.5); }
+.theme-icon-button:active { transform:scale(.94); }
+.theme-icon-button:focus-visible { outline:3px solid rgba(255,255,255,.8); outline-offset:2px; }
 .save-dot { width:.6rem; height:.6rem; border-radius:999px; background:#94a3b8; box-shadow:0 0 0 4px rgba(148,163,184,.14); }
 .save-dot.on { background:var(--color-success); box-shadow:0 0 0 4px rgba(22,163,122,.14); }
 .btn-compact { padding:.45rem .8rem; font-size:.75rem; }
