@@ -84,12 +84,13 @@ function parseDateTime(s) {
 }
 
 /* ── Note building blocks (inline styles → survive paste into Outlook/ICM/Teams) ── */
-const NOTE_WRAP_OPEN = '<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.5;color:#1a1a1a;">';
 const NOTE_WRAP_CLOSE = "</div>";
-const head = (t) => `<p style="margin:0 0 4px 0;font-weight:bold;">${escapeHtml(t)}</p>`;
-const majorHead = (t) => `<p style="margin:0 0 6px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
-const body = (v) => `<p style="margin:0 0 14px 0;">${nl2br(v)}</p>`;
-const line = (label, v) => `<p style="margin:0 0 2px 0;"><strong>${escapeHtml(label)}:</strong> ${nl2br(v)}</p>`;
+const compactOutput = () => document.documentElement.dataset.outputStyle === "compact";
+const noteWrapOpen = () => `<div style="font-family:Segoe UI,Arial,sans-serif;font-size:${compactOutput() ? 13 : 14}px;line-height:${compactOutput() ? 1.35 : 1.5};color:#1a1a1a;">`;
+const head = (t) => `<p style="margin:0 0 ${compactOutput() ? 2 : 4}px 0;font-weight:bold;">${escapeHtml(t)}</p>`;
+const majorHead = (t) => `<p style="margin:0 0 ${compactOutput() ? 3 : 6}px 0;font-weight:bold;text-decoration:underline;">${escapeHtml(t)}</p>`;
+const body = (v) => `<p style="margin:0 0 ${compactOutput() ? 7 : 14}px 0;">${nl2br(v)}</p>`;
+const line = (label, v) => `<p style="margin:0 0 ${compactOutput() ? 1 : 2}px 0;"><strong>${escapeHtml(label)}:</strong> ${nl2br(v)}</p>`;
 
 /* ════════════════════════════════════════════════════════════════
    Generators — each returns { html, plain } (title returns a string)
@@ -109,14 +110,15 @@ function buildCaseNote() {
     ["Next Contact", val("nextContactCase")],
     ["Next Action", val("nextActionCase")],
   ];
-  const html = NOTE_WRAP_OPEN + fields.map(([l, v]) => head(l) + body(v)).join("") + NOTE_WRAP_CLOSE;
+  const html = noteWrapOpen() + fields.map(([l, v]) => head(l) + body(v)).join("") + NOTE_WRAP_CLOSE;
   const plain = fields.map(([l, v]) => `${l}:\n${v}\n`).join("\n");
   return { html, plain };
 }
 
 function buildRiskNote() {
-  const cell = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;vertical-align:top;";
-  const th = "padding:6px 8px;border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;";
+  const pad = compactOutput() ? "3px 5px" : "6px 8px";
+  const cell = `padding:${pad};border:1px solid #d9e2f0;text-align:left;vertical-align:top;`;
+  const th = `padding:${pad};border:1px solid #d9e2f0;text-align:left;background:#eef6ff;font-weight:bold;`;
   let html = `<table style="border-collapse:collapse;width:100%;font-family:Segoe UI,Arial,sans-serif;font-size:13px;color:#1a1a1a;">`;
   html += `<thead><tr><th style="${th}">No.</th><th style="${th}">Risk</th><th style="${th}">Description</th><th style="${th}">Y/N</th></tr></thead><tbody>`;
   let plain = "";
@@ -139,7 +141,7 @@ function buildSoapTemplate() {
     ["Has ASC Been Viewed/Used", val("soapAscViewed")], ["Any Insights Generated in ASC", val("soapAscInsights")],
     ["ASC Insights Details", val("soapAscDetails")],
   ];
-  let html = NOTE_WRAP_OPEN + majorHead("Issue Description");
+  let html = noteWrapOpen() + majorHead("Issue Description");
   html += head("S – Subjective") + body(val("soapSubject"));
   html += head("O – Objective") + body(val("soapObjective"));
   objectiveDetails.filter(([,v]) => v).forEach(([label,value]) => { html += line(label, value); });

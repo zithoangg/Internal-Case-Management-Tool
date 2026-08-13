@@ -3,6 +3,7 @@
   const KEY = "icm-tool-v2";
   const PREF = "icm-tool-autosave";
   const THEME_PREF = "icm-tool-theme";
+  const OUTPUT_PREF = "icm-tool-output-style";
   const $ = (id) => document.getElementById(id);
   const controls = () => [...document.querySelectorAll("main input[id], main select[id], main textarea[id]")];
   const autosaveOn = () => localStorage.getItem(PREF) === "on";
@@ -57,6 +58,17 @@
     localStorage.setItem(THEME_PREF, next); applyTheme(next);
   });
 
+  const savedOutputStyle = localStorage.getItem(OUTPUT_PREF) === "compact" ? "compact" : "standard";
+  document.documentElement.dataset.outputStyle = savedOutputStyle;
+  if ($("outputStyle")) $("outputStyle").value = savedOutputStyle;
+  $("outputStyle")?.addEventListener("change", (event) => {
+    const style = event.target.value === "compact" ? "compact" : "standard";
+    localStorage.setItem(OUTPUT_PREF, style);
+    document.documentElement.dataset.outputStyle = style;
+    document.dispatchEvent(new Event("icm:refresh"));
+    window.toast?.(`${style === "compact" ? "Compact" : "Standard"} output selected`);
+  });
+
   $("toggleAutosave")?.addEventListener("click", () => {
     if (autosaveOn()) {
       localStorage.removeItem(PREF); localStorage.removeItem(KEY); updateSaveUi("Local draft removed");
@@ -69,8 +81,9 @@
     const data = window.collectState?.() || {};
     const blob = new Blob([JSON.stringify({ version: 3, exportedAt: new Date().toISOString(), data }, null, 2)], {type:"application/json"});
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `icm-draft-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+    $("exportDraft")?.closest("details")?.removeAttribute("open");
   });
-  $("importDraft")?.addEventListener("click", () => $("importDraftFile")?.click());
+  $("importDraft")?.addEventListener("click", () => { $("importDraft")?.closest("details")?.removeAttribute("open"); $("importDraftFile")?.click(); });
   $("importDraftFile")?.addEventListener("change", async (e) => {
     try {
       const parsed = JSON.parse(await e.target.files[0].text());

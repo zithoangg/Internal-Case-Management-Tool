@@ -30,6 +30,12 @@ test("Microsoft branding and restrained SOAP underlining are present", () => {
   assert.match(script, /majorHead\("Communication"\)/);
   assert.match(script, /head\("S – Subjective"\)/);
 });
+test("draft menu, required markers, and output styles are available", () => {
+  assert.match(html, /class="draft-menu"/);
+  assert.match(html, /id="outputStyle"/);
+  assert.match(html, /class="required-mark"/);
+  assert.match(script, /compactOutput/);
+});
 test("legacy scroll spy cannot override focused workspace tabs", () => {
   assert.match(script, /body\.classList\.contains\("workspace-mode"\)\) return/);
 });
