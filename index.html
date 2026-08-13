@@ -46,7 +46,7 @@
         <div class="draft-menu-panel"><button id="exportDraft" type="button">Export draft</button><button id="importDraft" type="button">Import draft</button></div>
       </details>
       <input id="importDraftFile" class="sr-only" type="file" accept="application/json,.json" />
-      <label class="output-style-control">Output <select id="outputStyle" aria-label="Output style"><option value="standard">Standard</option><option value="compact">Compact</option></select></label>
+      <div id="outputStyle" class="output-style-control" role="group" aria-label="Output style"><span>Output</span><button type="button" data-output-style="standard" aria-pressed="true">Standard</button><button type="button" data-output-style="compact" aria-pressed="false">Compact</button></div>
       <button id="copyAll" type="button" class="btn btn-compact btn-primary">Copy all</button>
       <button id="newCase" type="button" class="btn btn-compact btn-danger">New case</button>
     </div>
