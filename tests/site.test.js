@@ -31,14 +31,16 @@ test("Microsoft branding and restrained SOAP underlining are present", () => {
   assert.match(script, /head\("S – Subjective"\)/);
 });
 test("draft menu, required markers, and output styles are available", () => {
-  assert.match(html, /class="draft-menu"/);
-  assert.match(html, />Draft tools</);
+  assert.match(html, /class="workspace-menu"/);
+  assert.match(html, /> Workspace</);
   assert.match(html, />Paste spacing</);
   assert.match(html, /id="outputStyle"/);
   assert.match(html, /data-output-style="standard"/);
   assert.match(html, /data-output-style="compact"/);
   assert.match(html, /class="required-mark"/);
   assert.match(script, /compactOutput/);
+  const workspace = fs.readFileSync("workspace.js", "utf8");
+  assert.match(workspace, /dataset\.outputStyle === style\) return/);
 });
 test("legacy scroll spy cannot override focused workspace tabs", () => {
   assert.match(script, /body\.classList\.contains\("workspace-mode"\)\) return/);

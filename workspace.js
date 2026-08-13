@@ -60,6 +60,7 @@
 
   const savedOutputStyle = localStorage.getItem(OUTPUT_PREF) === "compact" ? "compact" : "standard";
   function applyOutputStyle(style, announce = false) {
+    if (announce && document.documentElement.dataset.outputStyle === style) return;
     localStorage.setItem(OUTPUT_PREF, style);
     document.documentElement.dataset.outputStyle = style;
     document.querySelectorAll("[data-output-style]").forEach(button => {
