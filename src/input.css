@@ -467,7 +467,7 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
 .workspace-bar { display:flex; align-items:center; justify-content:space-between; gap:1rem; border:1px solid rgba(255,255,255,.9); border-radius:1rem; background:rgba(255,255,255,.84); padding:1rem 1.25rem; box-shadow:0 6px 24px rgba(12,24,40,.08); backdrop-filter:blur(20px); }
 .ms-mark { display:grid; grid-template-columns:repeat(2,.62rem); grid-template-rows:repeat(2,.62rem); gap:2px; flex:none; filter:drop-shadow(0 2px 3px rgba(0,0,0,.15)); }
 .ms-mark i:nth-child(1) { background:#f25022; }.ms-mark i:nth-child(2) { background:#7fba00; }.ms-mark i:nth-child(3) { background:#00a4ef; }.ms-mark i:nth-child(4) { background:#ffb900; }
-.theme-icon-button { position:fixed; z-index:500; left:1rem; bottom:1rem; display:grid; place-items:center; width:2.75rem; height:2.75rem; border:1px solid rgba(21,91,191,.2); border-radius:999px; color:#155bbf; background:rgba(255,255,255,.94); box-shadow:0 8px 28px rgba(12,24,40,.18); font-size:1.3rem; line-height:1; cursor:pointer; backdrop-filter:blur(14px); transition:background .2s,transform .15s,border-color .2s,box-shadow .2s; }
+.theme-icon-button { position:fixed; z-index:500; left:max(1rem,env(safe-area-inset-left)); bottom:max(1rem,env(safe-area-inset-bottom)); display:grid; place-items:center; width:3.25rem; height:3.25rem; border:2px solid rgba(21,91,191,.26); border-radius:999px; color:#155bbf; background:rgba(255,255,255,.96); box-shadow:0 9px 30px rgba(12,24,40,.2); font-family:"Segoe UI Symbol","Arial Unicode MS",sans-serif; font-size:1.7rem; font-weight:800; line-height:1; text-shadow:0 1px 1px rgba(255,255,255,.7); cursor:pointer; backdrop-filter:blur(14px); transition:background .2s,transform .15s,border-color .2s,box-shadow .2s; }
 .theme-icon-button:hover { background:#eef6ff; border-color:rgba(21,91,191,.42); box-shadow:0 10px 34px rgba(12,24,40,.24); }
 .theme-icon-button:active { transform:scale(.94); }
 .theme-icon-button:focus-visible { outline:3px solid rgba(43,140,255,.35); outline-offset:3px; }
@@ -519,5 +519,5 @@ html[data-theme="dark"] .cs-option:focus { color:#bfdbfe; background:rgba(59,130
 html[data-theme="dark"] .confirm-dialog { color:#e5edf8; background:#111827; }
 html[data-theme="dark"] .text-slate-500 { color:#94a3b8; }
 html[data-theme="dark"] footer { color:#94a3b8; }
-html[data-theme="dark"] .theme-icon-button { color:#f8d66d; background:rgba(15,23,42,.94); border-color:rgba(147,197,253,.28); box-shadow:0 8px 30px rgba(0,0,0,.4); }
+html[data-theme="dark"] .theme-icon-button { color:#ffe08a; background:rgba(15,23,42,.96); border-color:rgba(147,197,253,.4); box-shadow:0 8px 30px rgba(0,0,0,.45); text-shadow:0 0 8px rgba(255,224,138,.22); }
 html[data-theme="dark"] .theme-icon-button:hover { background:#1e293b; border-color:rgba(147,197,253,.5); }
