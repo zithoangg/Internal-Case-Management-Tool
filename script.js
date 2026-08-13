@@ -271,9 +271,11 @@ function collectState() {
   return data;
 }
 function saveState() {
+  if (localStorage.getItem("icm-tool-autosave") !== "on") return;
   try { localStorage.setItem(STORE_KEY, JSON.stringify(collectState())); } catch (e) { /* quota / private mode */ }
 }
 function loadState() {
+  if (localStorage.getItem("icm-tool-autosave") !== "on") return null;
   try { return JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (e) { return null; }
 }
 function applyState(s) {
@@ -321,9 +323,9 @@ function renderRiskRows() {
         <div class="mt-0.5 text-xs leading-snug text-slate-500">${escapeHtml(r.description)}</div>
       </div>
       <div class="flex items-center justify-end gap-2">
-        <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y">
+        <input class="yn-radio" type="radio" id="risk${n}_y" name="risk${n}" value="Y" aria-label="${escapeHtml(r.name)}: Yes">
         <label for="risk${n}_y" class="circle" title="Yes">Y</label>
-        <input class="yn-radio" type="radio" id="risk${n}_n" name="risk${n}" value="N" checked>
+        <input class="yn-radio" type="radio" id="risk${n}_n" name="risk${n}" value="N" checked aria-label="${escapeHtml(r.name)}: No">
         <label for="risk${n}_n" class="circle" title="No">N</label>
       </div>
     </div>`;
@@ -853,7 +855,16 @@ function init() {
 
   // 8. Sidebar navigation scroll spy
   initScrollSpy();
+
+  document.addEventListener("icm:refresh", () => {
+    hydratePickers();
+    document.querySelectorAll("select.field").forEach((s) => s.dispatchEvent(new Event("change", { bubbles: true })));
+    renderTitle(); renderCase(); renderRisk(); renderSoap();
+  });
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
 else init();
+
+// Small public surface used by the optional workspace controls.
+Object.assign(window, { collectState, applyState, saveState, toast });

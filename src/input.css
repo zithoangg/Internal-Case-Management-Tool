@@ -458,3 +458,23 @@ main > .card:nth-child(4) { animation-delay: 0.23s; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* v3 workspace */
+.workspace-bar { display:flex; align-items:center; justify-content:space-between; gap:1rem; border:1px solid rgba(255,255,255,.9); border-radius:1rem; background:rgba(255,255,255,.84); padding:1rem 1.25rem; box-shadow:0 6px 24px rgba(12,24,40,.08); backdrop-filter:blur(20px); }
+.save-dot { width:.6rem; height:.6rem; border-radius:999px; background:#94a3b8; box-shadow:0 0 0 4px rgba(148,163,184,.14); }
+.save-dot.on { background:var(--color-success); box-shadow:0 0 0 4px rgba(22,163,122,.14); }
+.btn-compact { padding:.45rem .8rem; font-size:.75rem; }
+.btn-danger { color:#b42318; background:#fff; border:2px solid rgba(180,35,24,.16); }
+.btn-danger:hover { background:#fff5f4; border-color:rgba(180,35,24,.35); }
+.mobile-section-nav { display:none; }
+.confirm-dialog { width:min(30rem,calc(100vw - 2rem)); border:0; border-radius:1rem; padding:1.5rem; color:#17202a; box-shadow:0 24px 80px rgba(12,24,40,.3); }
+.confirm-dialog::backdrop { background:rgba(15,23,42,.5); backdrop-filter:blur(4px); }
+.sr-only { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+.workspace-mode main > .card { display:none; }
+.workspace-mode main > .card.workspace-active { display:block; animation:fadeUp .3s cubic-bezier(.16,1,.3,1) both; }
+.workspace-mode main { min-height:32rem; }
+@media (max-width:639px) {
+  .workspace-bar { align-items:flex-start; flex-direction:column; }
+  .mobile-section-nav { display:block; }
+  .workspace-bar .btn { flex:1 1 auto; }
+}
